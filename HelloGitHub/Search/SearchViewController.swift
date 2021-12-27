@@ -8,22 +8,28 @@
 import UIKit
 
 class SearchViewController: UIViewController {
+    
+    var searchView: SearchView!
+    var viewModel: SearchViewModel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        viewModel = SearchViewModel(dataLoader: DataLoader())
+        searchView = SearchView(viewModel: viewModel)
+        searchView.createView()
+        searchView.configureCollectionView()
+        searchView.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.view.addSubview(searchView)
+        
+        NSLayoutConstraint.activate([
+            searchView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            searchView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            searchView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
+            searchView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+        ])
+        
+        viewModel.querySearch(query: "tetris")
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

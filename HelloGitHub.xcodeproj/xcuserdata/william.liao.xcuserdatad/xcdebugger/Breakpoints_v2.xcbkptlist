@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "3A75A339-03CD-4F2B-88B8-A2B7F432E023"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "49CD1962-7ABD-426A-A623-C48009A956A3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HelloGitHub/Search/ViewModel/SearchViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "querySearch(query:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "49CD1962-7ABD-426A-A623-C48009A956A3 - 906e89139d98b8fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;HelloGitHub.Repositories, HelloGitHub.NetworkError&gt;) -&gt; () in HelloGitHub.SearchViewModel.querySearch(query: Swift.String) -&gt; ()"
+                  moduleName = "HelloGitHub"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Search/ViewModel/SearchViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "856">
+               </Location>
+               <Location
+                  uuid = "49CD1962-7ABD-426A-A623-C48009A956A3 - 906e89139d98b8fa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Result&lt;HelloGitHub.Repositories, HelloGitHub.NetworkError&gt;) -&gt; () in HelloGitHub.SearchViewModel.querySearch(query: Swift.String) -&gt; ()"
+                  moduleName = "HelloGitHub"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Search/ViewModel/SearchViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "876">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

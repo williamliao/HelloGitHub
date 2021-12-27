@@ -38,8 +38,8 @@ extension EndPoint {
                 URLQueryItem(name: "order", value: ordering.rawValue),
                 URLQueryItem(name: "per_page", value: String(perPage)),
                 URLQueryItem(name: "page", value: String(page)),
-                URLQueryItem(name: "client_id", value: EndPoint.client_id),
-                URLQueryItem(name: "client_secret", value: EndPoint.client_secret)
+//                URLQueryItem(name: "client_id", value: EndPoint.client_id),
+//                URLQueryItem(name: "client_secret", value: EndPoint.client_secret)
             ]
         )
     }

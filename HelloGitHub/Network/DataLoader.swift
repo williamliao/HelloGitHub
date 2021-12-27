@@ -11,36 +11,64 @@ import UIKit
 enum NetworkError: Error {
     case unsupportedURL
     case network(Error?)
+    case statusCodeError(Int)
+    case noHTTPResponse
+    case badData
 }
 
 class DataLoader {
     
     private let urlSession: URLSession
+    private let decoder: JSONDecoder
 
-    init(urlSession: URLSession = .shared) {
-        self.urlSession = urlSession
+    init(session: URLSession = .shared, decoder: JSONDecoder = .init()) {
+        self.urlSession = session
+        self.decoder = decoder
     }
     
     @available(iOS 13.0.0, *)
     func request(_ endpoint: EndPoint,
-                 then handler: @escaping (Result<Data, NetworkError>) -> Void) async throws {
+                 then handler: @escaping (Result<Repositories, NetworkError>) -> Void) {
+        
         guard let url = endpoint.url else {
             return handler(.failure(NetworkError.unsupportedURL))
         }
+        
+        let task = urlSession.dataTask(with: url) { data, response, error in
+            
+            
+            guard error == nil else {
+                if let error = error {
+                    handler(Result.failure(NetworkError.network(error)))
+                    return
+                }
+                return
+            }
 
-        let task = urlSession.dataTask(with: url) {
-            data, _, error in
-
-            let result = data.map(Result.success) ??
-                .failure(NetworkError.network(error))
-
-            handler(result)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                handler(Result.failure(NetworkError.noHTTPResponse))
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                guard let data = data else {
+                    handler(Result.failure(NetworkError.badData))
+                    return
+                }
+                
+                self.decoder.dateDecodingStrategy = .iso8601
+                
+                do {
+                    let genericModel = try self.decoder.decode(Repositories.self, from: data)
+                    handler(Result.success(genericModel))
+                } catch {
+                    handler(Result.failure(NetworkError.network(error)))
+                }
+            } else {
+                handler(Result.failure(NetworkError.statusCodeError(httpResponse.statusCode)))
+            }
         }
 
         task.resume()
     }
 }
-
-//dataLoader.request(.search(matching: query)) { result in
-    //...
-//}

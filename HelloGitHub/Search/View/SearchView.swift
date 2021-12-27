@@ -9,6 +9,8 @@ import UIKit
 
 class SearchView: UIView {
     
+    //private var repos: Bindable<Repositories>
+    
     enum Section: Int, CaseIterable {
         case main
     }
@@ -69,6 +71,12 @@ extension SearchView {
             collectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             collectionView.topAnchor.constraint(equalTo: self.topAnchor),
         ])
+        
+        viewModel.reloadCollectionView = { [weak self] in
+            DispatchQueue.main.async {
+                self?.applyInitialSnapshots()
+            }
+        }
     }
     
     func makeDateSourceForCollectionView() {
@@ -78,24 +86,49 @@ extension SearchView {
 
 extension SearchView {
     @available(iOS 13.0, *)
-    private func getSearchDatasource() -> UICollectionViewDiffableDataSource<Section, Repositories> {
+    private func getSearchDatasource() -> UICollectionViewDiffableDataSource<Section, Item> {
         return searchDataSource
     }
  
-    func makeSearchDataSource() -> UICollectionViewDiffableDataSource<Section, Repositories> {
-        return UICollectionViewDiffableDataSource<Section, Repositories>(collectionView: collectionView) { (collectionView, indexPath, respone) -> SearchCollectionViewCell? in
+    func makeSearchDataSource() -> UICollectionViewDiffableDataSource<Section, Item> {
+        return UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) { (collectionView, indexPath, respone) -> SearchCollectionViewCell? in
             let cell = self.configureSearchCell(collectionView: collectionView, respone: respone, indexPath: indexPath)
             return cell
+        }
+    }
+    
+    @available(iOS 13.0, *)
+    func applyInitialSnapshots() {
+
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        //var dataSource = getSearchDatasource()
+        
+        
+        //Append available sections
+        Section.allCases.forEach { snapshot.appendSections([$0]) }
+
+        guard let results = viewModel.repo else {
+            return
+        }
+        
+        snapshot.appendItems(results.items, toSection: .main)
+        
+        UIView.animate(withDuration: 0.25, delay: 0, options: UIView.AnimationOptions.curveLinear) {
+            self.searchDataSource.apply(snapshot, animatingDifferences: false)
+        } completion: { success in
+            
         }
     }
 }
 
 extension SearchView {
-    func configureSearchCell(collectionView: UICollectionView, respone: Repositories, indexPath: IndexPath) -> SearchCollectionViewCell? {
+    func configureSearchCell(collectionView: UICollectionView, respone: Item, indexPath: IndexPath) -> SearchCollectionViewCell? {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCollectionViewCell.reuseIdentifier, for: indexPath) as? SearchCollectionViewCell
         
+       //let repo = respone.name
         
+        cell?.configureCell(with: respone)
         
         return cell
     }

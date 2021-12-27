@@ -9,6 +9,33 @@ import UIKit
 
 class SearchViewModel {
 
-    
+    var repo: Repositories!
+    private let dataLoader: DataLoader
+    var reloadCollectionView: (() -> Void)?
 
+    init(dataLoader: DataLoader) {
+        self.dataLoader = dataLoader
+    }
+
+    func querySearch(query: String) {
+        
+        dataLoader.request(EndPoint.search(matching: query)) { result in
+            
+            switch result {
+                case .success(let repo):
+                
+                    self.repo = repo
+                    self.reloadCollectionView?()
+                    
+                case .failure(let error):
+                
+                    switch error {
+                        case .statusCodeError(let code):
+                            print(code)
+                        default:
+                            print(error)
+                    }
+            }
+        }
+    }
 }
