@@ -22,6 +22,7 @@
 		C81079E92779BD1200BBC01B /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81079E82779BD1200BBC01B /* SearchView.swift */; };
 		C81079EB2779BD2000BBC01B /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81079EA2779BD2000BBC01B /* SearchViewModel.swift */; };
 		C81079ED2779BF6300BBC01B /* SearchCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81079EC2779BF6300BBC01B /* SearchCollectionViewCell.swift */; };
+		C81079F02779C18B00BBC01B /* Bindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81079EF2779C18B00BBC01B /* Bindable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		C81079E82779BD1200BBC01B /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		C81079EA2779BD2000BBC01B /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		C81079EC2779BF6300BBC01B /* SearchCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCollectionViewCell.swift; sourceTree = "<group>"; };
+		C81079EF2779C18B00BBC01B /* Bindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 		C81079A82779ADE100BBC01B /* HelloGitHub */ = {
 			isa = PBXGroup;
 			children = (
+				C81079EE2779C17F00BBC01B /* Share */,
 				C81079E72779BCEB00BBC01B /* Search */,
 				C81079DE2779AEB200BBC01B /* Network */,
 				C81079D92779ADEF00BBC01B /* Model */,
@@ -183,6 +186,14 @@
 				C81079E32779BCB800BBC01B /* SearchViewController.swift */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		C81079EE2779C17F00BBC01B /* Share */ = {
+			isa = PBXGroup;
+			children = (
+				C81079EF2779C18B00BBC01B /* Bindable.swift */,
+			);
+			path = Share;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -316,6 +327,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C81079F02779C18B00BBC01B /* Bindable.swift in Sources */,
 				C81079E42779BCB800BBC01B /* SearchViewController.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
 				C81079EB2779BD2000BBC01B /* SearchViewModel.swift in Sources */,
