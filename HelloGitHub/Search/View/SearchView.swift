@@ -164,7 +164,6 @@ extension SearchView: UISearchBarDelegate {
         let strippedString =
             searchText.trimmingCharacters(in: whitespaceCharacterSet)
        
-      
         viewModel.querySearch(query: strippedString)
     }
     

@@ -14,6 +14,7 @@ enum NetworkError: Error {
     case statusCodeError(Int)
     case noHTTPResponse
     case badData
+    case queryTimeLimit
 }
 
 class DataLoader {
@@ -59,8 +60,14 @@ class DataLoader {
                 self.decoder.dateDecodingStrategy = .iso8601
                 
                 do {
-                    let genericModel = try self.decoder.decode(Repositories.self, from: data)
-                    handler(Result.success(genericModel))
+                    let repo = try self.decoder.decode(Repositories.self, from: data)
+                   
+                    if repo.incomplete_results {
+                        handler(Result.failure(NetworkError.queryTimeLimit))
+                    } else {
+                        handler(Result.success(repo))
+                    }
+                    
                 } catch {
                     handler(Result.failure(NetworkError.network(error)))
                 }

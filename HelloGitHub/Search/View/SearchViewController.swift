@@ -17,6 +17,9 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
 
         viewModel = SearchViewModel(dataLoader: DataLoader())
+        viewModel.showError = { [weak self] error in
+            self?.showErrorToast(error: error)
+        }
         renderView()
     }
     
@@ -32,5 +35,16 @@ class SearchViewController: UIViewController {
             searchView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
             searchView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
         ])
+    }
+    
+    func showErrorToast(error: NetworkError) {
+        switch error {
+            case .statusCodeError(let code):
+                print(code)
+            case .queryTimeLimit:
+                print("queryTimeLimit")
+            default:
+                print(error)
+        }
     }
 }
