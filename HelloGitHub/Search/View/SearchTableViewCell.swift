@@ -61,7 +61,6 @@ class SearchTableViewCell: UITableViewCell {
     
     let likeIcon: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "star")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -145,14 +144,17 @@ extension SearchTableViewCell {
 
 extension SearchTableViewCell {
     
-    
     func configureBindData(repo: Bindable<Item>) {
         self.repo = repo
         
-        self.repo.bind(\.full_name, to: userNameLabel, \.text)
-        self.repo.bind(\.name, to: nameLabel, \.text)
-        self.repo.bind(\.description, to: descriptionLabel, \.text)
-        self.repo.bind(\.stargazers_count, to: likeLabel, \.text, transform: String.init)
-        self.repo.bind(\.language, to: languageLabel, \.text)
+        if (self.repo != nil) {
+            self.repo.bind(\.full_name, to: userNameLabel, \.text)
+            self.repo.bind(\.name, to: nameLabel, \.text)
+            self.repo.bind(\.description, to: descriptionLabel, \.text)
+            self.repo.bind(\.stargazers_count, to: likeLabel, \.text, transform: String.init)
+            self.repo.bind(\.language, to: languageLabel, \.text)
+            
+            likeIcon.image = UIImage(systemName: "star")
+        }
     }
 }
