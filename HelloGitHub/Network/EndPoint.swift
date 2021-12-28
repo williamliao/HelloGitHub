@@ -14,6 +14,35 @@ enum RepositoriesSorting: String {
     case committer_date = "committer-date"
 }
 
+enum SearchRepositoriesSort: String{
+    case stars
+    case forks
+    case updated
+}
+
+enum SearchCommitsSort: String{
+    case authorDate = "author-date"
+    case committerDate = "committer-date"
+}
+
+enum SearchCodeSort: String{
+    case bestMatch = "best-match"
+    case recentlyIndexed = "recently-indexed"
+    case leastRecentlyIndexed = "least-recently-indexed"
+}
+
+enum SearchIssuesSort: String{
+    case comments
+    case created
+    case updated
+}
+
+enum SearchUsersSort: String{
+    case followers
+    case repositories
+    case joined
+}
+
 enum RepositoriesOrder: String {
     case asc
     case desc

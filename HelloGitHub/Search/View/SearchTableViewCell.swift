@@ -145,16 +145,17 @@ extension SearchTableViewCell {
 extension SearchTableViewCell {
     
     func configureBindData(repo: Bindable<Item>) {
-        self.repo = repo
+        repo.bind(\.full_name, to: userNameLabel, \.text)
+        repo.bind(\.name, to: nameLabel, \.text)
+        repo.bind(\.description, to: descriptionLabel, \.text)
+        repo.bind(\.stargazers_count, to: likeLabel, \.text, transform: String.init)
+        repo.bind(\.language, to: languageLabel, \.text)
         
-        if (self.repo != nil) {
-            self.repo.bind(\.full_name, to: userNameLabel, \.text)
-            self.repo.bind(\.name, to: nameLabel, \.text)
-            self.repo.bind(\.description, to: descriptionLabel, \.text)
-            self.repo.bind(\.stargazers_count, to: likeLabel, \.text, transform: String.init)
-            self.repo.bind(\.language, to: languageLabel, \.text)
-            
-            likeIcon.image = UIImage(systemName: "star")
-        }
+        likeIcon.image = UIImage(systemName: "star")
+    }
+    
+    func configureCommitsBindData(repo: Bindable<CommitItem>) {
+        repo.bind(\.commit.committer.name, to: userNameLabel, \.text)
+        repo.bind(\.commit.message, to: descriptionLabel, \.text)
     }
 }

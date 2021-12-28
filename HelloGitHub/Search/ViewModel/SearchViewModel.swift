@@ -9,7 +9,10 @@ import UIKit
 
 class SearchViewModel {
     
+    private var loadingTask: Task<Void, Never>?
+    
     var repo: Repositories!
+    var commits: Commits!
     
     var reloadTableView: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
@@ -41,10 +44,11 @@ class SearchViewModel {
         switch searchType {
             case .repositories:
                 searchRepositories()
-            case .code:
-                searchCode()
-            case .commits:
-                searchCommits()
+            case .issues:
+//                Task {
+//                    await searchCommits()
+//                }
+                break
             default:
                 break
         }
@@ -80,20 +84,28 @@ extension SearchViewModel {
         
     }
     
-    func searchCommits() {
-        dataLoader.request(EndPoint.searchCommits(matching: searchText)) { [weak self] result in
+    func searchCommits() async {
+        
+        do {
+            let result = try await dataLoader.fetch(EndPoint.searchCommits(matching: searchText), decode: { json -> Commits? in
+                guard let feedResult = json as? Commits else { return  nil }
+                return feedResult
+            })
             
-            self?.isFetching = false
-            
+            isFetching = false
             switch result {
-                case .success(let repo):
+                case .success(let commits):
             
-                    self?.repo = repo
-                    self?.reloadTableView?()
+                    
+                    self.commits = commits
+                    self.reloadTableView?()
                     
                 case .failure(let error):
-                    self?.showError?(error)
+                    showError?(error)
             }
+            
+        } catch  {
+            
         }
     }
 }

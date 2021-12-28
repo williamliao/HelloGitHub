@@ -33,7 +33,7 @@ class SearchView: UIView {
     }
     
     private var searchDataSource: UITableViewDiffableDataSource<Section, Item>!
-    
+    private var searchCommitsDataSource: UITableViewDiffableDataSource<Section, Commits>!
 }
 
 // MARK: - View
@@ -83,6 +83,7 @@ extension SearchView {
     
     func makeDateSourceForCollectionView() {
         makeSearchDataSource()
+        makeSearchCommitsDataSource()
         tableView.dataSource = getSearchDatasource()
     }
 }
@@ -103,25 +104,68 @@ extension SearchView {
         })
     }
     
+    private func makeSearchCommitsDataSource() {
+        
+        searchCommitsDataSource = UITableViewDiffableDataSource<Section, Commits>(tableView: tableView, cellProvider: { (tableView, indexPath, commits) -> SearchTableViewCell? in
+            let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.reuseIdentifier, for: indexPath) as? SearchTableViewCell
+            //cell?.configureBindData(repo: .init(item))
+            
+            let item = commits.items[indexPath.row]
+            cell?.configureCommitsBindData(repo: .init(item))
+            
+            return cell
+        })
+    }
+    
     @available(iOS 13.0, *)
     func applyInitialSnapshots() {
 
+        switch viewModel.searchType {
+            
+            case .repositories:
+                configRepo()
+            case .issues:
+                break
+            default:
+                break
+        }
+
+    }
+    
+    func configRepo() {
+        
+        tableView.dataSource = searchDataSource
+        
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
  
         //Append available sections
         Section.allCases.forEach { snapshot.appendSections([$0]) }
-
+        
         if let results = viewModel.repo {
             snapshot.appendItems(results.items, toSection: .main)
         } else {
             snapshot.appendItems([], toSection: .main)
         }
         
-        UIView.animate(withDuration: 0.25, delay: 0, options: UIView.AnimationOptions.curveLinear) {
-            self.searchDataSource.apply(snapshot, animatingDifferences: false)
-        } completion: { success in
-            
+        searchDataSource.apply(snapshot, animatingDifferences: false)
+    }
+    
+    func configCommits() {
+        
+        tableView.dataSource = searchCommitsDataSource
+        
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Commits>()
+ 
+        //Append available sections
+        Section.allCases.forEach { snapshot.appendSections([$0]) }
+    
+        if let results = viewModel.commits {
+            snapshot.appendItems([results], toSection: .main)
+        } else {
+            snapshot.appendItems([], toSection: .main)
         }
+        
+        searchCommitsDataSource.apply(snapshot, animatingDifferences: false)
     }
 }
 
@@ -181,6 +225,54 @@ extension SearchView: UISearchBarDelegate {
         if searchText == "" {
             closeSearchView()
         }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        
+        //imageHeightDictionary = [IndexPath: String]()
+        
+//        switch selectedScope {
+//            case 0:
+//                viewModel.searchType = .repositories
+//            case 1:
+//                viewModel.searchType = .code
+//            case 2:
+//                viewModel.searchType = .commits
+//            case 3:
+//                viewModel.searchType = .issues
+//            case 4:
+//                viewModel.searchType = .labels
+//            case 5:
+//                viewModel.searchType = .topics
+//            case 6:
+//                viewModel.searchType = .users
+//            default:
+//                break
+//        }
+        
+        guard let scopeButtonTitles = searchBar.scopeButtonTitles else {
+            return
+        }
+        
+        guard let category = SearchResults.SearchType(rawValue:
+                                                        scopeButtonTitles[selectedScope]) else {
+            return
+        }
+        
+        guard let searchText = searchBar.text else {
+            return
+        }
+        
+        // Strip out all the leading and trailing spaces.
+        let whitespaceCharacterSet = CharacterSet.whitespaces
+        let strippedString =
+            searchText.trimmingCharacters(in: whitespaceCharacterSet)
+        
+        viewModel.reset()
+        
+        viewModel.searchType = category
+       
+        viewModel.querySearch(query: strippedString)
     }
     
     func closeSearchView() {
