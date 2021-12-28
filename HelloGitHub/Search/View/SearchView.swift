@@ -17,6 +17,7 @@ class SearchView: UIView {
     var tableView: UITableView!
     var viewModel: SearchViewModel
     var navItem: UINavigationItem
+    var cellHeightsDictionary: [IndexPath: CGFloat] = [:]
     
     init(viewModel: SearchViewModel,  navItem: UINavigationItem) {
         self.viewModel = viewModel
@@ -40,7 +41,7 @@ extension SearchView {
     func createView() {
       
         searchViewController = UISearchController(searchResultsController: nil)
-        //searchViewController.searchBar.delegate = self
+        searchViewController.searchBar.delegate = self
         searchViewController.obscuresBackgroundDuringPresentation = true
         searchViewController.searchBar.placeholder = "Search"
         searchViewController.definesPresentationContext = true
@@ -48,6 +49,8 @@ extension SearchView {
         searchViewController.obscuresBackgroundDuringPresentation = true
         searchViewController.searchBar.showsScopeBar = true
         searchViewController.isActive = true
+        //searchViewController.searchResultsUpdater = self
+        searchViewController.searchBar.placeholder = "Type something here to search"
         
         navItem.searchController = searchViewController
         searchViewController.hidesNavigationBarDuringPresentation = false
@@ -104,17 +107,15 @@ extension SearchView {
     func applyInitialSnapshots() {
 
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-        //var dataSource = getSearchDatasource()
-        
-        
+ 
         //Append available sections
         Section.allCases.forEach { snapshot.appendSections([$0]) }
 
-        guard let results = viewModel.repo else {
-            return
+        if let results = viewModel.repo {
+            snapshot.appendItems(results.items, toSection: .main)
+        } else {
+            snapshot.appendItems([], toSection: .main)
         }
-        
-        snapshot.appendItems(results.items, toSection: .main)
         
         UIView.animate(withDuration: 0.25, delay: 0, options: UIView.AnimationOptions.curveLinear) {
             self.searchDataSource.apply(snapshot, animatingDifferences: false)
@@ -129,6 +130,70 @@ extension SearchView: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastElement = tableView.numberOfRows(inSection: indexPath.section) - 1
+        
+        if indexPath.row == lastElement {
+            self.cellHeightsDictionary[indexPath] = cell.frame.size.height
+            viewModel.loadNextPage()
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        if let height =  self.cellHeightsDictionary[indexPath]{
+            return height
+        }
+        return UITableView.automaticDimension
+    }
+}
+
+// MARK: - UISearchBarDelegate
+
+extension SearchView: UISearchBarDelegate {
+   
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+   
+        guard let searchText = searchBar.text else {
+            return
+        }
+        
+        // Strip out all the leading and trailing spaces.
+        let whitespaceCharacterSet = CharacterSet.whitespaces
+        let strippedString =
+            searchText.trimmingCharacters(in: whitespaceCharacterSet)
+       
+      
+        viewModel.querySearch(query: strippedString)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        closeSearchView()
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            closeSearchView()
+        }
+    }
+    
+    func closeSearchView() {
+        viewModel.repo = nil
+        viewModel.reset()
+        self.applyInitialSnapshots()
+        self.endEditing(true)
+    }
+}
+
+extension SearchView: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard searchController.isActive else { return }
+        guard let searchText = searchController.searchBar.text else {
+            return
+        }
+        
+        viewModel.querySearch(query: searchText)
     }
 }
 

@@ -8,10 +8,10 @@
 import Foundation
 
 struct Repositories: Codable {
-    let total_count: Int
-    let incomplete_results: Bool
-    let items: [Item]
-    let license: License?
+    var total_count: Int
+    var incomplete_results: Bool
+    var items: [Item]
+    var license: License?
 }
 
 extension Repositories: Hashable, Equatable {

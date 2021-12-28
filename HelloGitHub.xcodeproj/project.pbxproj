@@ -166,6 +166,7 @@
 			children = (
 				C81079E82779BD1200BBC01B /* SearchView.swift */,
 				C87020ED277AA1E400D04D07 /* SearchTableViewCell.swift */,
+				C81079E32779BCB800BBC01B /* SearchViewController.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -183,7 +184,6 @@
 			children = (
 				C81079E62779BCDF00BBC01B /* ViewModel */,
 				C81079E52779BCD100BBC01B /* View */,
-				C81079E32779BCB800BBC01B /* SearchViewController.swift */,
 			);
 			path = Search;
 			sourceTree = "<group>";

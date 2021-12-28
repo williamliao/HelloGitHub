@@ -87,6 +87,14 @@ class SearchTableViewCell: UITableViewCell {
         super.init(coder: coder)
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        userNameLabel.text = ""
+        nameLabel.text = ""
+        descriptionLabel.text = ""
+        likeLabel.text = ""
+        languageLabel.text = ""
+    }
 }
 
 extension SearchTableViewCell {

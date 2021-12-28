@@ -32,7 +32,5 @@ class SearchViewController: UIViewController {
             searchView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
             searchView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
         ])
-        
-        viewModel.querySearch(query: "tetris")
     }
 }
