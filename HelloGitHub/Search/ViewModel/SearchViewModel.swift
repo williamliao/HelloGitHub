@@ -8,10 +8,9 @@
 import UIKit
 
 class SearchViewModel {
-
     var repo: Repositories!
     private let dataLoader: DataLoader
-    var reloadCollectionView: (() -> Void)?
+    var reloadTableView: (() -> Void)?
 
     init(dataLoader: DataLoader) {
         self.dataLoader = dataLoader
@@ -25,7 +24,7 @@ class SearchViewModel {
                 case .success(let repo):
                 
                     self.repo = repo
-                    self.reloadCollectionView?()
+                    self.reloadTableView?()
                     
                 case .failure(let error):
                 
