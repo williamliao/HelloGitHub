@@ -16,7 +16,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
 
         viewModel = SearchViewModel(dataLoader: DataLoader())
-        searchView = SearchView(viewModel: viewModel)
+        searchView = SearchView(viewModel: viewModel, navItem: self.navigationItem)
         searchView.createView()
         searchView.configureCollectionView()
         searchView.translatesAutoresizingMaskIntoConstraints = false

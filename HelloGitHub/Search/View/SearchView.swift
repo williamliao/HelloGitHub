@@ -18,9 +18,11 @@ class SearchView: UIView {
     var searchViewController: UISearchController!
     var collectionView: UICollectionView!
     var viewModel: SearchViewModel
+    var navItem: UINavigationItem
     
-    init(viewModel: SearchViewModel ) {
+    init(viewModel: SearchViewModel,  navItem: UINavigationItem) {
         self.viewModel = viewModel
+        self.navItem = navItem
         super.init(frame: CGRect.zero)
     }
     
@@ -45,6 +47,14 @@ extension SearchView {
         searchViewController.obscuresBackgroundDuringPresentation = true
         searchViewController.searchBar.showsScopeBar = true
         searchViewController.isActive = true
+        
+        if #available(iOS 11.0, *) {
+            navItem.searchController = searchViewController
+            searchViewController.hidesNavigationBarDuringPresentation = false
+            navItem.hidesSearchBarWhenScrolling = false
+        } else {
+            navItem.titleView = searchViewController.searchBar
+        }
     }
     
     func configureCollectionView() {
