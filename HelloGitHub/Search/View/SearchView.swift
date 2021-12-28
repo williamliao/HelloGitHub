@@ -33,7 +33,7 @@ class SearchView: UIView {
     }
     
     private var searchDataSource: UITableViewDiffableDataSource<Section, Item>!
-    private var searchCommitsDataSource: UITableViewDiffableDataSource<Section, Commits>!
+    private var searchIssuesDataSource: UITableViewDiffableDataSource<Section, Issues>!
 }
 
 // MARK: - View
@@ -83,7 +83,7 @@ extension SearchView {
     
     func makeDateSourceForCollectionView() {
         makeSearchDataSource()
-        makeSearchCommitsDataSource()
+        makeSearchIssuesDataSource()
         tableView.dataSource = getSearchDatasource()
     }
 }
@@ -104,14 +104,14 @@ extension SearchView {
         })
     }
     
-    private func makeSearchCommitsDataSource() {
+    private func makeSearchIssuesDataSource() {
         
-        searchCommitsDataSource = UITableViewDiffableDataSource<Section, Commits>(tableView: tableView, cellProvider: { (tableView, indexPath, commits) -> SearchTableViewCell? in
+        searchIssuesDataSource = UITableViewDiffableDataSource<Section, Issues>(tableView: tableView, cellProvider: { (tableView, indexPath, issues) -> SearchTableViewCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.reuseIdentifier, for: indexPath) as? SearchTableViewCell
             //cell?.configureBindData(repo: .init(item))
             
-            let item = commits.items[indexPath.row]
-            cell?.configureCommitsBindData(repo: .init(item))
+            let item = issues.items[indexPath.row]
+            cell?.configureIssuesBindData(item: .init(item))
             
             return cell
         })
@@ -123,16 +123,16 @@ extension SearchView {
         switch viewModel.searchType {
             
             case .repositories:
-                configRepo()
+                configureRepo()
             case .issues:
-                break
+                configureIssues()
             default:
                 break
         }
 
     }
     
-    func configRepo() {
+    func configureRepo() {
         
         tableView.dataSource = searchDataSource
         
@@ -150,22 +150,22 @@ extension SearchView {
         searchDataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    func configCommits() {
+    func configureIssues() {
         
-        tableView.dataSource = searchCommitsDataSource
+        tableView.dataSource = searchIssuesDataSource
         
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Commits>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Issues>()
  
         //Append available sections
         Section.allCases.forEach { snapshot.appendSections([$0]) }
     
-        if let results = viewModel.commits {
+        if let results = viewModel.issues {
             snapshot.appendItems([results], toSection: .main)
         } else {
             snapshot.appendItems([], toSection: .main)
         }
         
-        searchCommitsDataSource.apply(snapshot, animatingDifferences: false)
+        searchIssuesDataSource.apply(snapshot, animatingDifferences: false)
     }
 }
 
@@ -259,7 +259,7 @@ extension SearchView: UISearchBarDelegate {
             return
         }
         
-        guard let searchText = searchBar.text else {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
             return
         }
         

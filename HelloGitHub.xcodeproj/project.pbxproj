@@ -25,6 +25,7 @@
 		C87020EE277AA1E400D04D07 /* SearchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87020ED277AA1E400D04D07 /* SearchTableViewCell.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
+		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		C87020ED277AA1E400D04D07 /* SearchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTableViewCell.swift; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
+		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +154,7 @@
 			children = (
 				C81079DC2779AE4500BBC01B /* Repositories.swift */,
 				C8B8254B277AF90B00235990 /* Commits.swift */,
+				C8B8254D277B190E00235990 /* Issues.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 				C8B8254A277AF68600235990 /* SearchType.swift in Sources */,
 				C81079E42779BCB800BBC01B /* SearchViewController.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
+				C8B8254E277B190E00235990 /* Issues.swift in Sources */,
 				C81079EB2779BD2000BBC01B /* SearchViewModel.swift in Sources */,
 				C87020EE277AA1E400D04D07 /* SearchTableViewCell.swift in Sources */,
 				C81079E22779B44C00BBC01B /* DataLoader.swift in Sources */,

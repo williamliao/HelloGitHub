@@ -158,4 +158,10 @@ extension SearchTableViewCell {
         repo.bind(\.commit.committer.name, to: userNameLabel, \.text)
         repo.bind(\.commit.message, to: descriptionLabel, \.text)
     }
+    
+    func configureIssuesBindData(item: Bindable<IssuesItems>) {
+        item.bind(\.user.login, to: userNameLabel, \.text)
+        item.bind(\.title, to: nameLabel, \.text)
+        item.bind(\.body, to: descriptionLabel, \.text)
+    }
 }

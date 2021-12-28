@@ -109,6 +109,24 @@ extension EndPoint {
             ]
         )
     }
+    
+    static func searchIssues(matching query: String,
+                       sortedBy sorting: SearchIssuesSort = .created,
+                       orderBy ordering: RepositoriesOrder = .asc,
+                       numberOf perPage: Int = 30,
+                       numberOfPage page: Int = 1) -> EndPoint {
+        return EndPoint(
+            path: "/search/issues",
+            queryItems: [
+                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "sort", value: sorting.rawValue),
+                URLQueryItem(name: "order", value: ordering.rawValue),
+                URLQueryItem(name: "per_page", value: String(perPage)),
+                URLQueryItem(name: "page", value: String(page)),
+            ]
+        )
+    }
 }
 
 extension EndPoint {
