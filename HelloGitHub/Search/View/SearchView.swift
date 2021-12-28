@@ -43,7 +43,6 @@ extension SearchView {
         searchViewController = UISearchController(searchResultsController: nil)
         searchViewController.searchBar.delegate = self
         searchViewController.obscuresBackgroundDuringPresentation = true
-        searchViewController.searchBar.placeholder = "Search"
         searchViewController.definesPresentationContext = true
         searchViewController.searchBar.autocapitalizationType = .none
         searchViewController.obscuresBackgroundDuringPresentation = true
@@ -51,6 +50,7 @@ extension SearchView {
         searchViewController.isActive = true
         //searchViewController.searchResultsUpdater = self
         searchViewController.searchBar.placeholder = "Type something here to search"
+        searchViewController.searchBar.scopeButtonTitles = SearchResults.SearchType.allCases.map { $0.rawValue }
         
         navItem.searchController = searchViewController
         searchViewController.hidesNavigationBarDuringPresentation = false
@@ -163,6 +163,12 @@ extension SearchView: UISearchBarDelegate {
         let whitespaceCharacterSet = CharacterSet.whitespaces
         let strippedString =
             searchText.trimmingCharacters(in: whitespaceCharacterSet)
+        
+        guard let category = SearchResults.SearchType(rawValue:searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]) else {
+            return
+        }
+        
+        viewModel.searchType = category
        
         viewModel.querySearch(query: strippedString)
     }

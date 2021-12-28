@@ -8,17 +8,21 @@
 import UIKit
 
 class SearchViewModel {
+    
     var repo: Repositories!
-    private let dataLoader: DataLoader
+    
     var reloadTableView: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
+
+    var searchType: SearchResults.SearchType = .repositories
     
-    var searchText: String!
+    private let dataLoader: DataLoader
+    private var searchText: String!
     private(set) var isFetching = false
     private var canFetchMore = true
     
-    var perPage: Int = 30
-    var currentPage: Int = 2
+    private var perPage: Int = 30
+    private var currentPage: Int = 2
 
     init(dataLoader: DataLoader) {
         self.dataLoader = dataLoader
@@ -34,7 +38,29 @@ class SearchViewModel {
         
         isFetching = true
         
-        dataLoader.request(EndPoint.search(matching: query)) { [weak self] result in
+        switch searchType {
+            case .repositories:
+                searchRepositories()
+            case .code:
+                searchCode()
+            case .commits:
+                searchCommits()
+            default:
+                break
+        }
+    }
+    
+    func reset() {
+        isFetching = false
+        canFetchMore = true
+        currentPage = 2
+    }
+}
+
+// MARK: - Search By Type
+extension SearchViewModel {
+    func searchRepositories() {
+        dataLoader.request(EndPoint.search(matching: searchText)) { [weak self] result in
             
             self?.isFetching = false
             
@@ -50,6 +76,30 @@ class SearchViewModel {
         }
     }
     
+    func searchCode() {
+        
+    }
+    
+    func searchCommits() {
+        dataLoader.request(EndPoint.searchCommits(matching: searchText)) { [weak self] result in
+            
+            self?.isFetching = false
+            
+            switch result {
+                case .success(let repo):
+            
+                    self?.repo = repo
+                    self?.reloadTableView?()
+                    
+                case .failure(let error):
+                    self?.showError?(error)
+            }
+        }
+    }
+}
+
+// MARK: - loadNextPage
+extension SearchViewModel {
     func loadNextPage() {
         
         if isFetching {
@@ -103,11 +153,5 @@ class SearchViewModel {
                     self?.showError?(error)
             }
         }
-    }
-    
-    func reset() {
-        isFetching = false
-        canFetchMore = true
-        currentPage = 2
     }
 }

@@ -9,6 +9,9 @@ import Foundation
 
 enum RepositoriesSorting: String {
     case create
+    case indexed
+    case author_date = "author-date"
+    case committer_date = "committer-date"
 }
 
 enum RepositoriesOrder: String {
@@ -38,8 +41,42 @@ extension EndPoint {
                 URLQueryItem(name: "order", value: ordering.rawValue),
                 URLQueryItem(name: "per_page", value: String(perPage)),
                 URLQueryItem(name: "page", value: String(page)),
-//                URLQueryItem(name: "client_id", value: EndPoint.client_id),
-//                URLQueryItem(name: "client_secret", value: EndPoint.client_secret)
+            ]
+        )
+    }
+    
+    static func searchCode(matching query: String,
+                       sortedBy sorting: RepositoriesSorting = .indexed,
+                       orderBy ordering: RepositoriesOrder = .asc,
+                       numberOf perPage: Int = 30,
+                       numberOfPage page: Int = 1) -> EndPoint {
+        return EndPoint(
+            path: "/search/code",
+            queryItems: [
+                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "sort", value: sorting.rawValue),
+                URLQueryItem(name: "order", value: ordering.rawValue),
+                URLQueryItem(name: "per_page", value: String(perPage)),
+                URLQueryItem(name: "page", value: String(page)),
+            ]
+        )
+    }
+    
+    static func searchCommits(matching query: String,
+                       sortedBy sorting: RepositoriesSorting = .author_date,
+                       orderBy ordering: RepositoriesOrder = .asc,
+                       numberOf perPage: Int = 30,
+                       numberOfPage page: Int = 1) -> EndPoint {
+        return EndPoint(
+            path: "/search/commits",
+            queryItems: [
+                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "sort", value: sorting.rawValue),
+                URLQueryItem(name: "order", value: ordering.rawValue),
+                URLQueryItem(name: "per_page", value: String(perPage)),
+                URLQueryItem(name: "page", value: String(page)),
             ]
         )
     }
