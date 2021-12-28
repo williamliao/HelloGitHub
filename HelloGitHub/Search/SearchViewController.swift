@@ -11,14 +11,17 @@ class SearchViewController: UIViewController {
     
     var searchView: SearchView!
     var viewModel: SearchViewModel!
+    var repo: Item!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         viewModel = SearchViewModel(dataLoader: DataLoader())
+        renderView()
+    }
+    
+    func renderView() {
         searchView = SearchView(viewModel: viewModel, navItem: self.navigationItem)
-        searchView.createView()
-        searchView.configureCollectionView()
         searchView.translatesAutoresizingMaskIntoConstraints = false
         
         self.view.addSubview(searchView)
