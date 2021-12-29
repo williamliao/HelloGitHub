@@ -10,8 +10,7 @@ import Foundation
 enum RepositoriesSorting: String {
     case create
     case indexed
-    case author_date = "author-date"
-    case committer_date = "committer-date"
+    case bestMatch = "best-match"
 }
 
 enum SearchRepositoriesSort: String{
@@ -26,7 +25,6 @@ enum SearchCommitsSort: String{
 }
 
 enum SearchCodeSort: String{
-    case bestMatch = "best-match"
     case recentlyIndexed = "recently-indexed"
     case leastRecentlyIndexed = "least-recently-indexed"
 }
@@ -93,7 +91,7 @@ extension EndPoint {
     }
     
     static func searchCommits(matching query: String,
-                       sortedBy sorting: RepositoriesSorting = .author_date,
+                       sortedBy sorting: SearchCommitsSort = .authorDate,
                        orderBy ordering: RepositoriesOrder = .asc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
@@ -111,8 +109,8 @@ extension EndPoint {
     }
     
     static func searchIssues(matching query: String,
-                       sortedBy sorting: SearchIssuesSort = .created,
-                       orderBy ordering: RepositoriesOrder = .asc,
+                       sortedBy sorting: RepositoriesSorting = .bestMatch,
+                       orderBy ordering: RepositoriesOrder = .desc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(

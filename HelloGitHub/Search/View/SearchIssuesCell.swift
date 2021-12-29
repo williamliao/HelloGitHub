@@ -10,7 +10,7 @@ import UIKit
 class SearchIssuesCell: UITableViewCell {
     
     static var reuseIdentifier: String {
-        return String(describing: SearchRepositoriesCell.self)
+        return String(describing: SearchIssuesCell.self)
     }
 
     let userNameLabel: UILabel = {

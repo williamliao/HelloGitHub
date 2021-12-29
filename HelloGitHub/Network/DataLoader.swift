@@ -33,8 +33,9 @@ enum NetworkError: Error {
 class DataLoader {
     typealias JSONTaskCompletionHandler = (Decodable?, NetworkError?) -> Void
     
+    var decoder: JSONDecoder
+    
     private let urlSession: URLSession
-    private let decoder: JSONDecoder
     private var successCodes: CountableRange<Int> = 200..<299
     private var failureClientCodes: CountableRange<Int> = 400..<499
     private var failureBackendCodes: CountableRange<Int> = 500..<511
@@ -74,10 +75,11 @@ class DataLoader {
                     return
                 }
                 
-                self.decoder.dateDecodingStrategy = .iso8601
+               // self.decoder.dateDecodingStrategy = .iso8601
                 
                 do {
-                    let repo = try self.decoder.decode(Repositories.self, from: data)
+                    let decoder: JSONDecoder = JSONDecoder()
+                    let repo = try decoder.decode(Repositories.self, from: data)
                    
                     if repo.incomplete_results {
                         handler(Result.failure(NetworkError.queryTimeLimit))
@@ -128,8 +130,6 @@ extension DataLoader {
     @available(iOS 13.0.0, *)
     private func decodingTaskWithConcurrency<T: Decodable>(with request: URLRequest, decodingType: T.Type, completionHandler completion: @escaping JSONTaskCompletionHandler) -> URLSessionDataTask {
         
-        let decoder = JSONDecoder()
-     
         let task = urlSession.dataTask(with: request) { data, response, error in
             
             guard error == nil else {
@@ -161,7 +161,7 @@ extension DataLoader {
                 }
                 
                 do {
-                    let genericModel = try decoder.decode(decodingType, from: data)
+                    let genericModel = try self.decoder.decode(decodingType, from: data)
                     completion(genericModel, nil)
                 } catch {
                     completion(nil, NetworkError.network(error))

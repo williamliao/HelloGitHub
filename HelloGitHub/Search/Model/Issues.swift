@@ -73,7 +73,7 @@ struct IssuesItems: Codable {
     let updated_at: String
     let closed_at: Closed_at
     let pull_request: Pull_request?
-    let body: String
+    let body: String?
     let score: Int
     let locked: Bool
     let author_association: String
@@ -98,22 +98,22 @@ struct Labels: Codable {
 }
 
 struct Milestone: Codable {
-    let url: String
-    let html_url: String
-    let labels_url: String
+    let url: String?
+    let html_url: String?
+    let labels_url: String?
     let id: Int
     let node_id: String
     let number: Int
     let state: String
     let title: String
-    let description: String
+    let description: String?
     let creator: Creator
-    let open_issues: Int
-    let closed_issues: Int
-    let created_at: String
-    let updated_at: String
-    let closed_at: String
-    let due_on: String
+    let open_issues: Int?
+    let closed_issues: Int?
+    let created_at: Date
+    let updated_at: String?
+    let closed_at: String?
+    let due_on: String?
 }
 
 struct Pull_request: Codable {

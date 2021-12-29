@@ -43,7 +43,9 @@ class SearchViewModel {
         
         switch searchType {
             case .repositories:
-                searchRepositories()
+                Task {
+                    await searchRepositories()
+                }
             case .issues:
                 Task {
                     await searchIssues()
@@ -63,20 +65,48 @@ class SearchViewModel {
 
 // MARK: - Search By Type
 extension SearchViewModel {
-    func searchRepositories() {
-        dataLoader.request(EndPoint.search(matching: searchText)) { [weak self] result in
+    func searchRepositories() async {
+
+        dataLoader.decoder.dateDecodingStrategy = .iso8601
+//
+//        dataLoader.request(EndPoint.search(matching: searchText)) { [weak self] result in
+//
+//            self?.isFetching = false
+//
+//            switch result {
+//                case .success(let repo):
+//
+//                    self?.repo = repo
+//                    self?.reloadTableView?()
+//
+//                case .failure(let error):
+//                    self?.showError?(error)
+//            }
+//        }
+        
+        dataLoader.decoder.dateDecodingStrategy = .iso8601
+
+        
+        do {
+            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText), decode: { json -> Repositories? in
+                guard let feedResult = json as? Repositories else { return  nil }
+                return feedResult
+            })
             
-            self?.isFetching = false
-            
+            isFetching = false
             switch result {
                 case .success(let repo):
             
-                    self?.repo = repo
-                    self?.reloadTableView?()
+                    
+                    self.repo = repo
+                    self.reloadTableView?()
                     
                 case .failure(let error):
-                    self?.showError?(error)
+                    showError?(error)
             }
+            
+        } catch  {
+            
         }
     }
     
@@ -85,6 +115,8 @@ extension SearchViewModel {
     }
     
     func searchIssues() async {
+        
+        dataLoader.decoder.dateDecodingStrategy = .iso8601
         
         do {
             let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText), decode: { json -> Issues? in

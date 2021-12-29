@@ -33,7 +33,7 @@ class SearchView: UIView {
     }
     
     private var searchDataSource: UITableViewDiffableDataSource<Section, Item>!
-    private var searchIssuesDataSource: UITableViewDiffableDataSource<Section, Issues>!
+    private var searchIssuesDataSource: UITableViewDiffableDataSource<Section, IssuesItems>!
 }
 
 // MARK: - View
@@ -63,7 +63,8 @@ extension SearchView {
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
-        tableView.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.reuseIdentifier)
+        tableView.register(SearchRepositoriesCell.self, forCellReuseIdentifier: SearchRepositoriesCell.reuseIdentifier)
+        tableView.register(SearchIssuesCell.self, forCellReuseIdentifier: SearchIssuesCell.reuseIdentifier)
       
         self.addSubview(tableView)
         
@@ -97,8 +98,8 @@ extension SearchView {
  
     private func makeSearchDataSource() {
         
-        searchDataSource = UITableViewDiffableDataSource<Section, Item>(tableView: tableView, cellProvider: { (tableView, indexPath, item) -> SearchTableViewCell? in
-            let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.reuseIdentifier, for: indexPath) as? SearchTableViewCell
+        searchDataSource = UITableViewDiffableDataSource<Section, Item>(tableView: tableView, cellProvider: { (tableView, indexPath, item) -> SearchRepositoriesCell? in
+            let cell = tableView.dequeueReusableCell(withIdentifier: SearchRepositoriesCell.reuseIdentifier, for: indexPath) as? SearchRepositoriesCell
             cell?.configureBindData(repo: .init(item))
             return cell
         })
@@ -106,12 +107,11 @@ extension SearchView {
     
     private func makeSearchIssuesDataSource() {
         
-        searchIssuesDataSource = UITableViewDiffableDataSource<Section, Issues>(tableView: tableView, cellProvider: { (tableView, indexPath, issues) -> SearchTableViewCell? in
-            let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.reuseIdentifier, for: indexPath) as? SearchTableViewCell
-            //cell?.configureBindData(repo: .init(item))
+        searchIssuesDataSource = UITableViewDiffableDataSource<Section, IssuesItems>(tableView: tableView, cellProvider: { (tableView, indexPath, issues) -> SearchIssuesCell? in
+            let cell = tableView.dequeueReusableCell(withIdentifier: SearchIssuesCell.reuseIdentifier, for: indexPath) as? SearchIssuesCell
+            cell?.configureIssuesBindData(item: .init(issues))
             
-            let item = issues.items[indexPath.row]
-            cell?.configureIssuesBindData(item: .init(item))
+            cell?.formatDate()
             
             return cell
         })
@@ -134,7 +134,7 @@ extension SearchView {
     
     func configureRepo() {
         
-        tableView.dataSource = searchDataSource
+        //tableView.dataSource = searchDataSource
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
  
@@ -154,13 +154,13 @@ extension SearchView {
         
         tableView.dataSource = searchIssuesDataSource
         
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Issues>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, IssuesItems>()
  
         //Append available sections
         Section.allCases.forEach { snapshot.appendSections([$0]) }
     
         if let results = viewModel.issues {
-            snapshot.appendItems([results], toSection: .main)
+            snapshot.appendItems(results.items, toSection: .main)
         } else {
             snapshot.appendItems([], toSection: .main)
         }
@@ -229,7 +229,7 @@ extension SearchView: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         
-        //imageHeightDictionary = [IndexPath: String]()
+        self.cellHeightsDictionary = [IndexPath: CGFloat]()
         
 //        switch selectedScope {
 //            case 0:
