@@ -15,6 +15,7 @@ enum NetworkError: Error {
     case noHTTPResponse
     case badData
     case queryTimeLimit
+    case notModified // 304
     case badRequest //400
     case unAuthorized //401
     case forbidden //403
@@ -22,13 +23,14 @@ enum NetworkError: Error {
     case methodNotAllowed // 405
     case timeOut //408
     case unSupportedMediaType //415
+    case validationFailed // 422
     case rateLimitted //429
     case serverError //500
     case serverUnavailable //503
     case gatewayTimeout //504
     case networkAuthenticationRequired //511
-    case unKnown
     case invalidImage
+    case unKnown
 }
 
 class DataLoader {
@@ -168,6 +170,8 @@ extension DataLoader {
                     completion(nil, NetworkError.network(error))
                 }
                 
+            } else if httpResponse.statusCode == 304 {
+                completion(nil, NetworkError.notModified)
             }  else {
                 completion(nil, self.handleHTTPResponse(statusCode: httpResponse.statusCode))
             }
@@ -214,6 +218,8 @@ extension DataLoader {
                     return NetworkError.timeOut
                 case 415:
                     return NetworkError.unSupportedMediaType
+                case 422:
+                    return NetworkError.validationFailed
                 case 429:
                     return NetworkError.rateLimitted
                 default:
