@@ -127,6 +127,28 @@ class DataLoader {
         }
         task.resume()
     }
+    
+    func requestWithURL<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T, NetworkError>) -> Void) {
+       
+        let request = URLRequest(url: endpoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
+       
+        let task = decodingTaskWithConcurrency(with: request, decodingType: T.self) { (json , error) in
+            
+            DispatchQueue.main.async {
+                guard let json = json else {
+                    if let error = error {
+                        handler(Result.failure(error))
+                    }
+                    return
+                }
+
+                if let value = decode(json) {
+                    handler(.success(value))
+                }
+            }
+        }
+        task.resume()
+    }
 }
 
 extension DataLoader {
@@ -187,6 +209,26 @@ extension DataLoader {
             return try await withCheckedThrowingContinuation({
                 (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
                 request(endpoint, decode: decode) { result in
+                    continuation.resume(returning: result)
+                }
+            })
+        } catch NetworkError.unAuthorized  {
+            return Result.failure(NetworkError.unAuthorized)
+        } catch NetworkError.timeOut  {
+            return Result.failure(NetworkError.timeOut)
+        } catch {
+            print("fetchDataWithConcurrency error \(error)")
+            return Result.failure(NetworkError.unKnown)
+        }
+    }
+    
+    func fetchUser<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
+        try Task.checkCancellation()
+        
+        do {
+            return try await withCheckedThrowingContinuation({
+                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
+                requestWithURL(endpoint, decode: decode) { result in
                     continuation.resume(returning: result)
                 }
             })
