@@ -18,6 +18,7 @@ class SearchViewModel {
     
     var reloadTableView: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
+    var finishedHandleNextPageUser: (() -> Void)?
 
     var searchType: SearchResults.SearchType = .repositories
     
@@ -46,11 +47,11 @@ class SearchViewModel {
         switch searchType {
             case .repositories:
                 Task {
-                    await searchRepositories()
+                    await searchRepositories(page: 1)
                 }
             case .issues:
                 Task {
-                    await searchIssues()
+                    await searchIssues(page: 1)
                 }
             case .people:
                 Task {
@@ -70,12 +71,12 @@ class SearchViewModel {
 
 // MARK: - Search By Type
 extension SearchViewModel {
-    func searchRepositories() async {
+    func searchRepositories(page: Int) async {
 
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
         do {
-            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText), decode: { json -> Repositories? in
+            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText, numberOfPage: page), decode: { json -> Repositories? in
                 guard let feedResult = json as? Repositories else { return  nil }
                 return feedResult
             })
@@ -83,15 +84,19 @@ extension SearchViewModel {
             isFetching = false
             switch result {
                 case .success(let repo):
-            
-                    if repo.incomplete_results {
-                        showError?(NetworkError.queryTimeLimit)
-                        return
+                
+                    if page == 1 {
+                        if repo.incomplete_results {
+                            showError?(NetworkError.queryTimeLimit)
+                            return
+                        }
+                        
+                        self.repo = repo
+                        self.reloadTableView?()
+                    } else {
+                        handleSearchRepositoriesNextPage(newRepo: repo)
                     }
-                    
-                    self.repo = repo
-                    self.reloadTableView?()
-                    
+            
                 case .failure(let error):
                     showError?(error)
             }
@@ -101,12 +106,12 @@ extension SearchViewModel {
         }
     }
     
-    func searchIssues() async {
+    func searchIssues(page: Int) async {
         
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
         do {
-            let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText), decode: { json -> Issues? in
+            let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText, numberOfPage: page), decode: { json -> Issues? in
                 guard let feedResult = json as? Issues else { return  nil }
                 return feedResult
             })
@@ -115,14 +120,18 @@ extension SearchViewModel {
             switch result {
                 case .success(let issues):
                 
-                    if issues.incomplete_results {
-                        showError?(NetworkError.queryTimeLimit)
-                        return
+                    if page == 1 {
+                        if issues.incomplete_results {
+                            showError?(NetworkError.queryTimeLimit)
+                            return
+                        }
+                        
+                        self.issues = issues
+                        self.reloadTableView?()
+                    } else {
+                        handleSearchIssuesNextPage(newIssues: issues)
                     }
                 
-                    self.issues = issues
-                    self.reloadTableView?()
-                    
                 case .failure(let error):
                     showError?(error)
             }
@@ -138,19 +147,53 @@ extension SearchViewModel {
     
     func searchUserAndFetchInfo() async {
         dataLoader.decoder.dateDecodingStrategy = .iso8601
-        self.users = await fetchUser()
+        self.users = await fetchUser(page: 1)
         await fetchUserInfo()
     }
     
-    func fetchUser() async -> Users? {
+    func fetchUser(page: Int) async -> Users? {
         
         do {
-            let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText), decode: { json -> Users? in
+            let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText, numberOfPage: page), decode: { json -> Users? in
                 guard let feedResult = json as? Users else { return  nil }
                 return feedResult
             })
-
-            return try result.get()
+            
+            if page == 1 {
+                return try result.get()
+            } else {
+                let newUsers = try result.get()
+                guard var totalUsers = self.users  else {
+                    return nil
+                }
+          
+                totalUsers.total_count = newUsers.total_count
+                totalUsers.incomplete_results = newUsers.incomplete_results
+                if (newUsers.items.count > 0) {
+                    for index in 0...newUsers.items.count - 1 {
+                        if !totalUsers.items.contains(newUsers.items[index]) {
+                            totalUsers.items.append(newUsers.items[index])
+                        }
+                    }
+                } else {
+                    self.canFetchMore = false
+                }
+                
+                if totalUsers.items.count < 30 {
+                    self.canFetchMore = false
+                } else {
+                   
+                    self.currentPage = self.currentPage + 1
+                }
+                
+                self.users = totalUsers
+                
+                if self.users.items.count == newUsers.total_count {
+                    self.canFetchMore = false
+                }
+                print(self.users.items.count)
+                return self.users
+            }
             
         } catch  {
             return nil
@@ -199,60 +242,133 @@ extension SearchViewModel {
 extension SearchViewModel {
     func loadNextPage() {
         
-        if isFetching {
-            return
-        }
-        
-        if canFetchMore == false {
-            return
-        }
+//        if isFetching {
+//            return
+//        }
+//
+//        if canFetchMore == false {
+//            return
+//        }
         
         isFetching = true
-        dataLoader.request(EndPoint.search(matching: searchText, numberOfPage: currentPage)) { [weak self] result in
-            
-            self?.isFetching = false
-            
-            switch result {
-                case .success(let repo):
-                    
-                    guard var new = self?.repo  else {
-                        return
-                    }
-              
-                    new.total_count = repo.total_count
-                    new.incomplete_results = repo.incomplete_results
-                    new.license = repo.license
-                    if (repo.items.count > 0) {
-                        for index in 0...repo.items.count - 1 {
-                            if !new.items.contains(repo.items[index]) {
-                                new.items.append(repo.items[index])
-                            }
-                        }
-                    } else {
-                        self?.canFetchMore = false
-                    }
-                
-                    if new.total_count == new.items.count {
-                        self?.canFetchMore = false
-                    }
-                    
-                    if new.items.count < 30 {
-                        self?.canFetchMore = false
-                    } else {
-                        
-                        guard let page = self?.currentPage else {
-                            return
-                        }
-                        
-                        self?.currentPage = page + 1
-                    }
-                    
-                    self?.repo = new
-                    self?.reloadTableView?()
-                    
-                case .failure(let error):
-                    self?.showError?(error)
-            }
+        
+        switch searchType {
+            case .repositories:
+                Task {
+                    await searchRepositories(page: currentPage)
+                }
+            case .issues:
+                Task {
+                    await searchIssues(page: currentPage)
+                }
+            case .people:
+                Task {
+                    dataLoader.decoder.dateDecodingStrategy = .iso8601
+                    self.users = await fetchUser(page: currentPage)
+                    await fetchUserInfo()
+                }
+            default:
+                break
         }
+    }
+    
+    func handleSearchRepositoriesNextPage(newRepo: Repositories) {
+        guard var totalRepo = self.repo  else {
+            return
+        }
+  
+        totalRepo.total_count = newRepo.total_count
+        totalRepo.incomplete_results = newRepo.incomplete_results
+        totalRepo.license = newRepo.license
+        if (newRepo.items.count > 0) {
+            for index in 0...newRepo.items.count - 1 {
+                if !totalRepo.items.contains(newRepo.items[index]) {
+                    totalRepo.items.append(newRepo.items[index])
+                }
+            }
+        } else {
+            self.canFetchMore = false
+        }
+        
+        if totalRepo.items.count < 30 {
+            self.canFetchMore = false
+        } else {
+           
+            self.currentPage = self.currentPage + 1
+        }
+        
+        self.repo = totalRepo
+        
+        if self.repo.items.count == newRepo.total_count {
+            self.canFetchMore = false
+        }
+        
+        self.reloadTableView?()
+    }
+    
+    func handleSearchIssuesNextPage(newIssues: Issues) {
+        guard var totalIssues = self.issues  else {
+            return
+        }
+  
+        totalIssues.total_count = newIssues.total_count
+        totalIssues.incomplete_results = newIssues.incomplete_results
+        if (newIssues.items.count > 0) {
+            for index in 0...newIssues.items.count - 1 {
+                if !totalIssues.items.contains(newIssues.items[index]) {
+                    totalIssues.items.append(newIssues.items[index])
+                }
+            }
+        } else {
+            self.canFetchMore = false
+        }
+        
+        if totalIssues.items.count < 30 {
+            self.canFetchMore = false
+        } else {
+           
+            self.currentPage = self.currentPage + 1
+        }
+        
+        self.issues = totalIssues
+        
+        if self.repo.items.count == newIssues.total_count {
+            self.canFetchMore = false
+        }
+        
+        self.reloadTableView?()
+    }
+    
+    func handleSearchUsersNextPage(newUsers: Users) {
+        guard var totalUsers = self.users  else {
+            return
+        }
+  
+        totalUsers.total_count = repo.total_count
+        totalUsers.incomplete_results = repo.incomplete_results
+        if (newUsers.items.count > 0) {
+            for index in 0...newUsers.items.count - 1 {
+                if !totalUsers.items.contains(newUsers.items[index]) {
+                    totalUsers.items.append(newUsers.items[index])
+                }
+            }
+        } else {
+            self.canFetchMore = false
+        }
+        
+        if totalUsers.items.count < 30 {
+            self.canFetchMore = false
+        } else {
+           
+            self.currentPage = self.currentPage + 1
+        }
+        
+        self.users = totalUsers
+        
+        if self.repo.items.count == newUsers.total_count {
+            self.canFetchMore = false
+        }
+        
+        self.finishedHandleNextPageUser?()
     }
 }
