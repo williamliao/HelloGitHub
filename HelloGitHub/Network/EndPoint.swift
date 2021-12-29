@@ -7,29 +7,25 @@
 
 import Foundation
 
-enum RepositoriesSorting: String {
-    case create
-    case indexed
-    case bestMatch = "best-match"
-}
-
-enum SearchRepositoriesSort: String{
+enum SearchRepositoriesSort: String {
     case stars
     case forks
     case updated
+    case helpWantedIssues = "help-wanted-issues"
 }
 
-enum SearchCommitsSort: String{
+enum SearchCommitsSort: String {
     case authorDate = "author-date"
     case committerDate = "committer-date"
 }
 
-enum SearchCodeSort: String{
+enum SearchCodeSort: String {
+    case indexed
     case recentlyIndexed = "recently-indexed"
     case leastRecentlyIndexed = "least-recently-indexed"
 }
 
-enum SearchIssuesSort: String{
+enum SearchIssuesSort: String {
     case comments
     case created
     case updated
@@ -41,7 +37,7 @@ enum SearchUsersSort: String{
     case joined
 }
 
-enum RepositoriesOrder: String {
+enum SearchOrder: String {
     case asc
     case desc
 }
@@ -55,8 +51,8 @@ struct EndPoint {
 
 extension EndPoint {
     static func search(matching query: String,
-                       sortedBy sorting: RepositoriesSorting = .create,
-                       orderBy ordering: RepositoriesOrder = .asc,
+                       sortedBy sorting: SearchRepositoriesSort = .updated,
+                       orderBy ordering: SearchOrder = .asc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(
@@ -73,8 +69,8 @@ extension EndPoint {
     }
     
     static func searchCode(matching query: String,
-                       sortedBy sorting: RepositoriesSorting = .indexed,
-                       orderBy ordering: RepositoriesOrder = .asc,
+                       sortedBy sorting: SearchCodeSort = .indexed,
+                       orderBy ordering: SearchOrder = .asc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(
@@ -92,7 +88,7 @@ extension EndPoint {
     
     static func searchCommits(matching query: String,
                        sortedBy sorting: SearchCommitsSort = .authorDate,
-                       orderBy ordering: RepositoriesOrder = .asc,
+                       orderBy ordering: SearchOrder = .asc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(
@@ -109,12 +105,30 @@ extension EndPoint {
     }
     
     static func searchIssues(matching query: String,
-                       sortedBy sorting: RepositoriesSorting = .bestMatch,
-                       orderBy ordering: RepositoriesOrder = .desc,
+                       sortedBy sorting: SearchIssuesSort = .created,
+                       orderBy ordering: SearchOrder = .desc,
                        numberOf perPage: Int = 30,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(
             path: "/search/issues",
+            queryItems: [
+                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
+                URLQueryItem(name: "q", value: query),
+                URLQueryItem(name: "sort", value: sorting.rawValue),
+                URLQueryItem(name: "order", value: ordering.rawValue),
+                URLQueryItem(name: "per_page", value: String(perPage)),
+                URLQueryItem(name: "page", value: String(page)),
+            ]
+        )
+    }
+    
+    static func searchUsers(matching query: String,
+                       sortedBy sorting: SearchUsersSort = .followers,
+                       orderBy ordering: SearchOrder = .desc,
+                       numberOf perPage: Int = 30,
+                       numberOfPage page: Int = 1) -> EndPoint {
+        return EndPoint(
+            path: "/search/users",
             queryItems: [
                 URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
