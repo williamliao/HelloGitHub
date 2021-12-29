@@ -83,6 +83,10 @@ extension SearchViewModel {
             switch result {
                 case .success(let repo):
             
+                    if !repo.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
                     
                     self.repo = repo
                     self.reloadTableView?()
@@ -91,7 +95,7 @@ extension SearchViewModel {
                     showError?(error)
             }
             
-        } catch  {
+        }  catch  {
             print("searchRepositories error \(error)")
         }
     }
@@ -107,6 +111,12 @@ extension SearchViewModel {
             isFetching = false
             switch result {
                 case .success(let users):
+                
+                    if !users.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
+                
                     self.users = users
                     self.reloadTableView?()
                     
@@ -132,6 +142,12 @@ extension SearchViewModel {
             isFetching = false
             switch result {
                 case .success(let issues):
+                
+                    if !issues.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
+                
                     self.issues = issues
                     self.reloadTableView?()
                     
