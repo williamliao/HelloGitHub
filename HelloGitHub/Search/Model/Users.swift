@@ -78,10 +78,10 @@ struct UsersInfo: Codable {
     let events_url: String?
     let site_admin: Bool
     let name: String
-    let company: String
-    let blog: String
-    let location: String
-    let email: String
+    let company: String?
+    let blog: String?
+    let location: String?
+    let email: String?
     let hireable: Bool?
     let bio: String?
     let twitter_username: String?
@@ -91,4 +91,14 @@ struct UsersInfo: Codable {
     let following: Int
     let created_at: Date
     let updated_at: Date
+}
+
+extension UsersInfo: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: UsersInfo, rhs: UsersInfo) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

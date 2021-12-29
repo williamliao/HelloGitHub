@@ -23,16 +23,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "88A133FD-4FA9-4576-BD68-244634D1B0EE"
-            shouldBeEnabled = "Yes"
+            uuid = "E1AB7076-E3E8-478E-90C5-C8CA026468C4"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
+            filePath = "HelloGitHub/Search/View/SearchUsersCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
-            landmarkName = "request(_:decode:then:)"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
+            landmarkName = "calcDescriptionHeight(description:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

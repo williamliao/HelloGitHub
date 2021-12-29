@@ -52,11 +52,14 @@ class SearchUsersCell: UITableViewCell {
         label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
-        label.lineBreakMode = .byTruncatingTail
         label.textAlignment = .left
+        label.lineBreakMode = .byWordWrapping
+        label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private var descriptionHeightLayout: NSLayoutConstraint!
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -86,6 +89,8 @@ extension SearchUsersCell {
     }
     
     func configureConstraints() {
+        
+        descriptionHeightLayout = descriptionLabel.heightAnchor.constraint(equalToConstant: 16)
   
         NSLayoutConstraint.activate([
             
@@ -107,17 +112,18 @@ extension SearchUsersCell {
             descriptionLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
-            descriptionLabel.heightAnchor.constraint(equalToConstant: 16),
+            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            descriptionHeightLayout,
         ])
     }
 }
 
 extension SearchUsersCell {
     
-    func configureBindData(users: Bindable<UsersItems>, imageUrl: URL?) {
-        users.bind(\.login, to: userNameLabel, \.text)
+    func configureBindData(users: Bindable<UsersInfo>, imageUrl: URL?) {
+        users.bind(\.name, to: userNameLabel, \.text)
         users.bind(\.login, to: nameLabel, \.text)
-        //users.bind(\.description, to: descriptionLabel, \.text)
+        users.bind(\.bio, to: descriptionLabel, \.text)
 
         if #available(iOS 15.0, *) {
             Task {
@@ -130,6 +136,19 @@ extension SearchUsersCell {
         } else {
             // Fallback on earlier versions
         }
+        
+        let newHeight = calcDescriptionHeight(description: descriptionLabel.text ?? "")
+        descriptionHeightLayout.constant = newHeight
+    }
+    
+    func calcDescriptionHeight(description: String) -> CGFloat {
+        let paragraphStyle = NSMutableParagraphStyle()
+        
+        print("bio \(description)")
+      
+        let estimatedFrame = NSString(string: description).boundingRect(with: CGSize(width: UIScreen.main.bounds.size.width - 20, height: Double.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16), NSAttributedString.Key.paragraphStyle: paragraphStyle], context: nil)
+        
+        return ceil(estimatedFrame.size.height)
     }
     
     @available(iOS 15.0, *)

@@ -30,6 +30,7 @@ enum NetworkError: Error {
     case gatewayTimeout //504
     case networkAuthenticationRequired //511
     case invalidImage
+    case invalidMetadata
     case unKnown
 }
 
@@ -77,9 +78,7 @@ class DataLoader {
                     handler(Result.failure(NetworkError.badData))
                     return
                 }
-                
-               // self.decoder.dateDecodingStrategy = .iso8601
-                
+               
                 do {
                     let decoder: JSONDecoder = JSONDecoder()
                     let repo = try decoder.decode(Repositories.self, from: data)
@@ -100,6 +99,64 @@ class DataLoader {
 
         task.resume()
     }
+}
+
+// MARK: - Public
+extension DataLoader {
+    func fetch<T: Decodable>(_ endpoint: EndPoint, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
+        try Task.checkCancellation()
+        
+        do {
+            return try await withCheckedThrowingContinuation({
+                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
+                request(endpoint, decode: decode) { result in
+                    continuation.resume(returning: result)
+                }
+            })
+        } catch NetworkError.unAuthorized  {
+            return Result.failure(NetworkError.unAuthorized)
+        } catch NetworkError.timeOut  {
+            return Result.failure(NetworkError.timeOut)
+        } catch {
+            print("fetchDataWithConcurrency error \(error)")
+            return Result.failure(NetworkError.unKnown)
+        }
+    }
+    
+    func fetch<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
+        try Task.checkCancellation()
+        
+        do {
+            return try await withCheckedThrowingContinuation({
+                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
+                request(endpoint, decode: decode) { result in
+                    continuation.resume(returning: result)
+                }
+            })
+        } catch NetworkError.unAuthorized  {
+            return Result.failure(NetworkError.unAuthorized)
+        } catch NetworkError.timeOut  {
+            return Result.failure(NetworkError.timeOut)
+        } catch {
+            print("fetchDataWithConcurrency error \(error)")
+            return Result.failure(NetworkError.unKnown)
+        }
+    }
+    
+    @available(iOS 15.0, *)
+    func fetchUserInfo(_ metadataUrl: URL) async throws -> UsersInfo {
+        let metadataRequest = URLRequest(url: metadataUrl)
+        let (data, metadataResponse) = try await URLSession.shared.data(for: metadataRequest)
+        guard (metadataResponse as? HTTPURLResponse)?.statusCode == 200 else {
+            throw NetworkError.invalidMetadata
+        }
+        
+        return try self.decoder.decode(UsersInfo.self, from: data)
+    }
+}
+
+// MARK: - Base
+extension DataLoader {
     
     @available(iOS 13.0.0, *)
     func request<T: Decodable>(_ endpoint: EndPoint, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T, NetworkError>) -> Void) {
@@ -128,8 +185,8 @@ class DataLoader {
         task.resume()
     }
     
-    func requestWithURL<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T, NetworkError>) -> Void) {
-       
+    func request<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T, NetworkError>) -> Void) {
+        
         let request = URLRequest(url: endpoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
        
         let task = decodingTaskWithConcurrency(with: request, decodingType: T.self) { (json , error) in
@@ -149,9 +206,7 @@ class DataLoader {
         }
         task.resume()
     }
-}
-
-extension DataLoader {
+    
     @available(iOS 13.0.0, *)
     private func decodingTaskWithConcurrency<T: Decodable>(with request: URLRequest, decodingType: T.Type, completionHandler completion: @escaping JSONTaskCompletionHandler) -> URLSessionDataTask {
         
@@ -202,43 +257,65 @@ extension DataLoader {
         return task
     }
     
-    func fetch<T: Decodable>(_ endpoint: EndPoint, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
-        try Task.checkCancellation()
-        
-        do {
-            return try await withCheckedThrowingContinuation({
-                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
-                request(endpoint, decode: decode) { result in
-                    continuation.resume(returning: result)
-                }
-            })
-        } catch NetworkError.unAuthorized  {
-            return Result.failure(NetworkError.unAuthorized)
-        } catch NetworkError.timeOut  {
-            return Result.failure(NetworkError.timeOut)
-        } catch {
-            print("fetchDataWithConcurrency error \(error)")
-            return Result.failure(NetworkError.unKnown)
+    @available(iOS 15.0, *)
+    func decodingTaskWithConcurrencyData<T: Decodable>(endPoint: URL, decodingType: T.Type) async throws -> Decodable? {
+        let request = URLRequest(url: endPoint)
+        let (data, metadataResponse) = try await URLSession.shared.data(for: request)
+        guard (metadataResponse as? HTTPURLResponse)?.statusCode == 200 else {
+            throw NetworkError.noHTTPResponse
         }
+
+        return try self.decoder.decode(decodingType, from: data)
     }
     
-    func fetchUser<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
-        try Task.checkCancellation()
+    func decodingTaskWithConcurrency<T: Decodable>(endPoint: URL, decodingType: T.Type) async throws -> Decodable? {
+        
+        var returnData: Data?
+        
+        let task = urlSession.dataTask(with: endPoint) { data, response, error in
+            
+            guard error == nil else {
+                if let error = error {
+                    
+                    let errorCode = (error as NSError).code
+                    
+                    switch errorCode {
+                        case NSURLErrorTimedOut:
+                            print("NSURLErrorTimedOut")
+                        default:
+                        print("error \(error)")
+                    }
+                    return
+                }
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return
+            }
+            
+            if self.successCodes.contains(httpResponse.statusCode) {
+                returnData = data
+                
+            } else if httpResponse.statusCode == 304 {
+                print("notModified")
+            }  else {
+                let error = self.handleHTTPResponse(statusCode: httpResponse.statusCode)
+                print("error \(error)")
+            }
+        }
+        task.resume()
+        
+        guard let data = returnData else {
+            return nil
+        }
         
         do {
-            return try await withCheckedThrowingContinuation({
-                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
-                requestWithURL(endpoint, decode: decode) { result in
-                    continuation.resume(returning: result)
-                }
-            })
-        } catch NetworkError.unAuthorized  {
-            return Result.failure(NetworkError.unAuthorized)
-        } catch NetworkError.timeOut  {
-            return Result.failure(NetworkError.timeOut)
+            let genericModel = try self.decoder.decode(decodingType, from: data)
+            return genericModel
         } catch {
-            print("fetchDataWithConcurrency error \(error)")
-            return Result.failure(NetworkError.unKnown)
+            print("error \(error)")
+            return nil
         }
     }
 }

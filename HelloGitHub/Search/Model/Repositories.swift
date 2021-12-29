@@ -40,7 +40,7 @@ struct Item: Codable {
     let url: String?
     let created_at: Date
     let updated_at: Date
-    let pushed_at: Date
+    let pushed_at: Date?
     let homepage: String?
     let size: Int
     let stargazers_count: Int

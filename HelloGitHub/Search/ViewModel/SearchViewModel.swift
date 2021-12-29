@@ -14,6 +14,7 @@ class SearchViewModel {
     var repo: Repositories!
     var issues: Issues!
     var users: Users!
+    var usersInfo = [UsersInfo]()
     
     var reloadTableView: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
@@ -53,7 +54,7 @@ class SearchViewModel {
                 }
             case .people:
                 Task {
-                    await searchUser()
+                    await searchUserAndFetchInfo()
                 }
             default:
                 break
@@ -83,7 +84,7 @@ extension SearchViewModel {
             switch result {
                 case .success(let repo):
             
-                    if !repo.incomplete_results {
+                    if repo.incomplete_results {
                         showError?(NetworkError.queryTimeLimit)
                         return
                     }
@@ -97,35 +98,6 @@ extension SearchViewModel {
             
         }  catch  {
             print("searchRepositories error \(error)")
-        }
-    }
-    
-    func searchUser() async {
-      
-        do {
-            let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText), decode: { json -> Users? in
-                guard let feedResult = json as? Users else { return  nil }
-                return feedResult
-            })
-            
-            isFetching = false
-            switch result {
-                case .success(let users):
-                
-                    if !users.incomplete_results {
-                        showError?(NetworkError.queryTimeLimit)
-                        return
-                    }
-                
-                    self.users = users
-                    self.reloadTableView?()
-                    
-                case .failure(let error):
-                    showError?(error)
-            }
-            
-        } catch  {
-            print("searchUser error \(error)")
         }
     }
     
@@ -143,7 +115,7 @@ extension SearchViewModel {
             switch result {
                 case .success(let issues):
                 
-                    if !issues.incomplete_results {
+                    if issues.incomplete_results {
                         showError?(NetworkError.queryTimeLimit)
                         return
                     }
@@ -157,6 +129,68 @@ extension SearchViewModel {
             
         } catch  {
             print("searchIssues error \(error)")
+        }
+    }
+}
+
+// MARK: - Search Users
+extension SearchViewModel {
+    
+    func searchUserAndFetchInfo() async {
+        dataLoader.decoder.dateDecodingStrategy = .iso8601
+        self.users = await fetchUser()
+        await fetchUserInfo()
+    }
+    
+    func fetchUser() async -> Users? {
+        
+        do {
+            let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText), decode: { json -> Users? in
+                guard let feedResult = json as? Users else { return  nil }
+                return feedResult
+            })
+
+            return try result.get()
+            
+        } catch  {
+            return nil
+        }
+    }
+    
+    func fetchUserInfo() async {
+        
+        do {
+            try await withThrowingTaskGroup(of: (UsersInfo).self) { group -> Void in
+                for index in 0...self.users.items.count - 1 {
+                    guard let url = self.users.items[index].url, let metadataUrl = URL(string: url) else {
+                        continue
+                    }
+
+                    group.addTask {
+                        if #available(iOS 15.0, *) {
+                            let metadata = try await self.dataLoader.fetchUserInfo(metadataUrl)
+                            return metadata
+                        } else {
+                            // Fallback on earlier versions
+                            let metadata = try await self.dataLoader.fetch(metadataUrl, decode: { json -> UsersInfo? in
+                                guard let feedResult = json as? UsersInfo else { return  nil }
+                                return feedResult
+                            })
+                            return try metadata.get()
+                        }
+                        
+                    }
+                    
+                    for try await result in group {
+                        self.usersInfo.append(result)
+                    }
+                }
+                
+                print("userInfo \(self.usersInfo)")
+                self.reloadTableView?()
+            }
+        } catch  {
+            print("Failed to load UsersInfo: \(error)")
         }
     }
 }

@@ -34,7 +34,7 @@ class SearchView: UIView {
     
     private var searchDataSource: UITableViewDiffableDataSource<Section, Item>!
     private var searchIssuesDataSource: UITableViewDiffableDataSource<Section, IssuesItems>!
-    private var searchUsersDataSource: UITableViewDiffableDataSource<Section, UsersItems>!
+    private var searchUsersDataSource: UITableViewDiffableDataSource<Section, UsersInfo>!
 }
 
 // MARK: - View
@@ -63,6 +63,8 @@ extension SearchView {
         tableView = UITableView()
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        self.tableView.estimatedRowHeight = 120
+        self.tableView.rowHeight = UITableView.automaticDimension
         
         tableView.register(SearchRepositoriesCell.self, forCellReuseIdentifier: SearchRepositoriesCell.reuseIdentifier)
         tableView.register(SearchIssuesCell.self, forCellReuseIdentifier: SearchIssuesCell.reuseIdentifier)
@@ -114,7 +116,7 @@ extension SearchView {
             return cell
         })
         
-        searchUsersDataSource = UITableViewDiffableDataSource<Section, UsersItems>(tableView: tableView, cellProvider: { (tableView, indexPath, users) -> SearchUsersCell? in
+        searchUsersDataSource = UITableViewDiffableDataSource<Section, UsersInfo>(tableView: tableView, cellProvider: { (tableView, indexPath, users) -> SearchUsersCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: SearchUsersCell.reuseIdentifier, for: indexPath) as? SearchUsersCell
             cell?.configureBindData(users: .init(users), imageUrl: users.avatar_url)
             return cell
@@ -177,13 +179,13 @@ extension SearchView {
         
         tableView.dataSource = searchUsersDataSource
         
-        var snapshot = NSDiffableDataSourceSnapshot<Section, UsersItems>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, UsersInfo>()
  
         //Append available sections
         Section.allCases.forEach { snapshot.appendSections([$0]) }
         
-        if let results = viewModel.users {
-            snapshot.appendItems(results.items, toSection: .main)
+        if viewModel.usersInfo.count > 0 {
+            snapshot.appendItems(viewModel.usersInfo, toSection: .main)
         } else {
             snapshot.appendItems([], toSection: .main)
         }
