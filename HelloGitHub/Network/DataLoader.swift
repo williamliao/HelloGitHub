@@ -28,6 +28,7 @@ enum NetworkError: Error {
     case gatewayTimeout //504
     case networkAuthenticationRequired //511
     case unKnown
+    case invalidImage
 }
 
 class DataLoader {

@@ -13,6 +13,7 @@ class SearchViewModel {
     
     var repo: Repositories!
     var issues: Issues!
+    var users: Users!
     
     var reloadTableView: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
@@ -50,7 +51,10 @@ class SearchViewModel {
                 Task {
                     await searchIssues()
                 }
-                break
+            case .people:
+                Task {
+                    await searchUser()
+                }
             default:
                 break
         }
@@ -92,8 +96,27 @@ extension SearchViewModel {
         }
     }
     
-    func searchCode() {
-        
+    func searchUser() async {
+      
+        do {
+            let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText), decode: { json -> Users? in
+                guard let feedResult = json as? Users else { return  nil }
+                return feedResult
+            })
+            
+            isFetching = false
+            switch result {
+                case .success(let users):
+                    self.users = users
+                    self.reloadTableView?()
+                    
+                case .failure(let error):
+                    showError?(error)
+            }
+            
+        } catch  {
+            print("searchUser error \(error)")
+        }
     }
     
     func searchIssues() async {

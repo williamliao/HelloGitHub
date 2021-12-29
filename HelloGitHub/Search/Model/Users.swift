@@ -27,7 +27,7 @@ extension Users: Hashable, Equatable {
 
 struct UsersItems: Codable {
     let login: String
-    let id: String
+    let id: Int
     let node_id: String
     let avatar_url: URL?
     let gravatar_id: String?

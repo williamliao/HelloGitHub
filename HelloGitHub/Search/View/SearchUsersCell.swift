@@ -10,7 +10,7 @@ import UIKit
 class SearchUsersCell: UITableViewCell {
     
     static var reuseIdentifier: String {
-        return String(describing: SearchRepositoriesCell.self)
+        return String(describing: SearchUsersCell.self)
     }
     
     let avatarImage: UIImageView = {
@@ -21,6 +21,7 @@ class SearchUsersCell: UITableViewCell {
         imageView.layer.borderColor = UIColor.black.cgColor
         imageView.layer.cornerRadius = imageView.frame.height/2
         imageView.clipsToBounds = true
+        imageView.image = UIImage(systemName: "person.crop.circle")
         return imageView
     }()
     
@@ -72,6 +73,7 @@ class SearchUsersCell: UITableViewCell {
         userNameLabel.text = ""
         nameLabel.text = ""
         descriptionLabel.text = ""
+        avatarImage.image = UIImage(systemName: "person.crop.circle")
     }
 }
 
@@ -92,17 +94,17 @@ extension SearchUsersCell {
             avatarImage.heightAnchor.constraint(equalToConstant: 44),
             avatarImage.widthAnchor.constraint(equalToConstant: 44),
             
-            userNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            userNameLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             userNameLabel.heightAnchor.constraint(equalToConstant: 16),
             
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            nameLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 10),
             nameLabel.heightAnchor.constraint(equalToConstant: 16),
             
-            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            descriptionLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
             descriptionLabel.heightAnchor.constraint(equalToConstant: 16),
@@ -112,7 +114,36 @@ extension SearchUsersCell {
 
 extension SearchUsersCell {
     
-    func configureBindData(repo: Bindable<Item>) {
+    func configureBindData(users: Bindable<UsersItems>, imageUrl: URL?) {
+        users.bind(\.login, to: userNameLabel, \.text)
+        users.bind(\.login, to: nameLabel, \.text)
+        //users.bind(\.description, to: descriptionLabel, \.text)
+
+        if #available(iOS 15.0, *) {
+            Task {
+                do {
+                    try await avatarImage.image = downloadImage(imageUrl)
+                } catch  {
+                    print("downloadImage error \(error)")
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    @available(iOS 15.0, *)
+    func downloadImage(_ imageUrl: URL?) async throws -> UIImage? {
         
+        guard let imageUrl = imageUrl else {
+            return nil
+        }
+
+        let imageRequest = URLRequest(url: imageUrl)
+        let (data, imageResponse) = try await URLSession.shared.data(for: imageRequest)
+        guard let image = UIImage(data: data), (imageResponse as? HTTPURLResponse)?.statusCode == 200 else {
+            throw NetworkError.invalidImage
+        }
+        return image
     }
 }

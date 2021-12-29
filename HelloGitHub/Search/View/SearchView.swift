@@ -34,6 +34,7 @@ class SearchView: UIView {
     
     private var searchDataSource: UITableViewDiffableDataSource<Section, Item>!
     private var searchIssuesDataSource: UITableViewDiffableDataSource<Section, IssuesItems>!
+    private var searchUsersDataSource: UITableViewDiffableDataSource<Section, UsersItems>!
 }
 
 // MARK: - View
@@ -65,6 +66,7 @@ extension SearchView {
         
         tableView.register(SearchRepositoriesCell.self, forCellReuseIdentifier: SearchRepositoriesCell.reuseIdentifier)
         tableView.register(SearchIssuesCell.self, forCellReuseIdentifier: SearchIssuesCell.reuseIdentifier)
+        tableView.register(SearchUsersCell.self, forCellReuseIdentifier: SearchUsersCell.reuseIdentifier)
       
         self.addSubview(tableView)
         
@@ -84,7 +86,6 @@ extension SearchView {
     
     func makeDateSourceForCollectionView() {
         makeSearchDataSource()
-        makeSearchIssuesDataSource()
         tableView.dataSource = getSearchDatasource()
     }
 }
@@ -103,9 +104,6 @@ extension SearchView {
             cell?.configureBindData(repo: .init(item))
             return cell
         })
-    }
-    
-    private func makeSearchIssuesDataSource() {
         
         searchIssuesDataSource = UITableViewDiffableDataSource<Section, IssuesItems>(tableView: tableView, cellProvider: { (tableView, indexPath, issues) -> SearchIssuesCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: SearchIssuesCell.reuseIdentifier, for: indexPath) as? SearchIssuesCell
@@ -115,17 +113,24 @@ extension SearchView {
             
             return cell
         })
+        
+        searchUsersDataSource = UITableViewDiffableDataSource<Section, UsersItems>(tableView: tableView, cellProvider: { (tableView, indexPath, users) -> SearchUsersCell? in
+            let cell = tableView.dequeueReusableCell(withIdentifier: SearchUsersCell.reuseIdentifier, for: indexPath) as? SearchUsersCell
+            cell?.configureBindData(users: .init(users), imageUrl: users.avatar_url)
+            return cell
+        })
     }
-    
+  
     @available(iOS 13.0, *)
     func applyInitialSnapshots() {
 
         switch viewModel.searchType {
-            
             case .repositories:
                 configureRepo()
             case .issues:
                 configureIssues()
+            case .people:
+                configureUser()
             default:
                 break
         }
@@ -134,7 +139,7 @@ extension SearchView {
     
     func configureRepo() {
         
-        //tableView.dataSource = searchDataSource
+        tableView.dataSource = searchDataSource
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
  
@@ -166,6 +171,24 @@ extension SearchView {
         }
         
         searchIssuesDataSource.apply(snapshot, animatingDifferences: false)
+    }
+    
+    func configureUser() {
+        
+        tableView.dataSource = searchUsersDataSource
+        
+        var snapshot = NSDiffableDataSourceSnapshot<Section, UsersItems>()
+ 
+        //Append available sections
+        Section.allCases.forEach { snapshot.appendSections([$0]) }
+        
+        if let results = viewModel.users {
+            snapshot.appendItems(results.items, toSection: .main)
+        } else {
+            snapshot.appendItems([], toSection: .main)
+        }
+        
+        searchUsersDataSource.apply(snapshot, animatingDifferences: false)
     }
 }
 
@@ -230,26 +253,7 @@ extension SearchView: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         
         self.cellHeightsDictionary = [IndexPath: CGFloat]()
-        
-//        switch selectedScope {
-//            case 0:
-//                viewModel.searchType = .repositories
-//            case 1:
-//                viewModel.searchType = .code
-//            case 2:
-//                viewModel.searchType = .commits
-//            case 3:
-//                viewModel.searchType = .issues
-//            case 4:
-//                viewModel.searchType = .labels
-//            case 5:
-//                viewModel.searchType = .topics
-//            case 6:
-//                viewModel.searchType = .users
-//            default:
-//                break
-//        }
-        
+
         guard let scopeButtonTitles = searchBar.scopeButtonTitles else {
             return
         }
