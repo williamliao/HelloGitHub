@@ -125,32 +125,21 @@ extension SearchIssuesCell {
 extension SearchIssuesCell {
     
     func configureIssuesBindData(item: Bindable<IssuesItems>) {
+        
         item.bind(\.user.login, to: userNameLabel, \.text)
         item.bind(\.title, to: titleLabel, \.text)
         item.bind(\.comments, to: conversationLabel, \.text, transform: String.init)
-        item.bind(\.created_at, to: timeLabel, \.text)
+        item.bind(\.created_at, to: timeLabel, \.text, transform: String.init)
         conversationIcon.image = UIImage(systemName: "bubble.left.and.bubble.right.fill")
     }
     
-    func formatDate() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        
-        guard let created_at = timeLabel.text else {
-            return
-        }
-        
-        // the date you want to format
-        let date = dateFormatter.date(from:created_at)!
-     
+    func formatDate(_ created_at: Date) {
         // ask for the full relative date
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
 
         // get exampleDate relative to the current date
-        let relativeDate = formatter.localizedString(for: date, relativeTo: Date())
-        
+        let relativeDate = formatter.localizedString(for: created_at, relativeTo: Date())
         
         timeLabel.text = relativeDate
     }

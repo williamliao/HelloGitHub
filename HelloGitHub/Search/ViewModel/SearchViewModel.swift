@@ -68,24 +68,6 @@ extension SearchViewModel {
     func searchRepositories() async {
 
         dataLoader.decoder.dateDecodingStrategy = .iso8601
-//
-//        dataLoader.request(EndPoint.search(matching: searchText)) { [weak self] result in
-//
-//            self?.isFetching = false
-//
-//            switch result {
-//                case .success(let repo):
-//
-//                    self?.repo = repo
-//                    self?.reloadTableView?()
-//
-//                case .failure(let error):
-//                    self?.showError?(error)
-//            }
-//        }
-        
-        dataLoader.decoder.dateDecodingStrategy = .iso8601
-
         
         do {
             let result = try await dataLoader.fetch(EndPoint.search(matching: searchText), decode: { json -> Repositories? in
@@ -106,7 +88,7 @@ extension SearchViewModel {
             }
             
         } catch  {
-            
+            print("searchRepositories error \(error)")
         }
     }
     
@@ -127,8 +109,6 @@ extension SearchViewModel {
             isFetching = false
             switch result {
                 case .success(let issues):
-            
-                    
                     self.issues = issues
                     self.reloadTableView?()
                     
@@ -137,7 +117,7 @@ extension SearchViewModel {
             }
             
         } catch  {
-            
+            print("searchIssues error \(error)")
         }
     }
 }
@@ -176,6 +156,10 @@ extension SearchViewModel {
                             }
                         }
                     } else {
+                        self?.canFetchMore = false
+                    }
+                
+                    if new.total_count == new.items.count {
                         self?.canFetchMore = false
                     }
                     

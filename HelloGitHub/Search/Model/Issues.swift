@@ -69,7 +69,7 @@ struct IssuesItems: Codable {
     let assignee: Assignee
     let milestone: Milestone?
     let comments: Int
-    let created_at: String
+    let created_at: Date
     let updated_at: String
     let closed_at: Closed_at
     let pull_request: Pull_request?

@@ -111,7 +111,7 @@ extension SearchView {
             let cell = tableView.dequeueReusableCell(withIdentifier: SearchIssuesCell.reuseIdentifier, for: indexPath) as? SearchIssuesCell
             cell?.configureIssuesBindData(item: .init(issues))
             
-            cell?.formatDate()
+            cell?.formatDate(issues.created_at)
             
             return cell
         })
