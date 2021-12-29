@@ -9,8 +9,6 @@ import UIKit
 
 class SearchRepositoriesCell: UITableViewCell {
     
-    var repo: Bindable<Item>!
-    
     static var reuseIdentifier: String {
         return String(describing: SearchRepositoriesCell.self)
     }
@@ -158,11 +156,5 @@ extension SearchRepositoriesCell {
     func configureCommitsBindData(repo: Bindable<CommitItem>) {
         repo.bind(\.commit.committer.name, to: userNameLabel, \.text)
         repo.bind(\.commit.message, to: descriptionLabel, \.text)
-    }
-    
-    func configureIssuesBindData(item: Bindable<IssuesItems>) {
-        item.bind(\.user.login, to: userNameLabel, \.text)
-        item.bind(\.title, to: nameLabel, \.text)
-        item.bind(\.body, to: descriptionLabel, \.text)
     }
 }

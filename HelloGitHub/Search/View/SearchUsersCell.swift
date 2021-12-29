@@ -8,16 +8,111 @@
 import UIKit
 
 class SearchUsersCell: UITableViewCell {
+    
+    static var reuseIdentifier: String {
+        return String(describing: SearchRepositoriesCell.self)
+    }
+    
+    let avatarImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.borderWidth = 1
+        imageView.layer.masksToBounds = false
+        imageView.layer.borderColor = UIColor.black.cgColor
+        imageView.layer.cornerRadius = imageView.frame.height/2
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+    
+    let userNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byTruncatingTail
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let nameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byTruncatingTail
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .label
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        label.lineBreakMode = .byTruncatingTail
+        label.textAlignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        configureView()
+        configureConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        userNameLabel.text = ""
+        nameLabel.text = ""
+        descriptionLabel.text = ""
     }
+}
 
+extension SearchUsersCell {
+    func configureView() {
+        self.contentView.addSubview(avatarImage)
+        self.contentView.addSubview(userNameLabel)
+        self.contentView.addSubview(nameLabel)
+        self.contentView.addSubview(descriptionLabel)
+    }
+    
+    func configureConstraints() {
+  
+        NSLayoutConstraint.activate([
+            
+            avatarImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            avatarImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            avatarImage.heightAnchor.constraint(equalToConstant: 44),
+            avatarImage.widthAnchor.constraint(equalToConstant: 44),
+            
+            userNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            userNameLabel.heightAnchor.constraint(equalToConstant: 16),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 10),
+            nameLabel.heightAnchor.constraint(equalToConstant: 16),
+            
+            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
+            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
+            descriptionLabel.heightAnchor.constraint(equalToConstant: 16),
+        ])
+    }
+}
+
+extension SearchUsersCell {
+    
+    func configureBindData(repo: Bindable<Item>) {
+        
+    }
 }
