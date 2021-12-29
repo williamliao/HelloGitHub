@@ -1,0 +1,58 @@
+//
+//  Users.swift
+//  HelloGitHub
+//
+//  Created by 雲端開發部-廖彥勛 on 2021/12/29.
+//
+
+import Foundation
+
+struct Users: Codable {
+    var total_count: Int
+    var incomplete_results: Bool
+    var items: [UsersItems]
+}
+
+extension Users: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(total_count)
+        hasher.combine(incomplete_results)
+        hasher.combine(items)
+    }
+
+    static func == (lhs: Users, rhs: Users) -> Bool {
+        return lhs.total_count == rhs.total_count && lhs.incomplete_results == rhs.incomplete_results && lhs.items == rhs.items
+    }
+}
+
+struct UsersItems: Codable {
+    let login: String
+    let id: String
+    let node_id: String
+    let avatar_url: URL?
+    let gravatar_id: String?
+    let url: String?
+    let html_url: String?
+    let followers_url: String?
+    let following_url: String?
+    let subscriptions_url: String?
+    let organizations_url: String?
+    let repos_url: String?
+    let received_events_url: String?
+    let score: Int?
+    let type: String
+    let gists_url: String?
+    let starred_url: String?
+    let events_url: String?
+    let site_admin: Bool
+}
+
+extension UsersItems: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: UsersItems, rhs: UsersItems) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
