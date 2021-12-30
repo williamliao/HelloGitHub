@@ -30,37 +30,32 @@ class SearchViewModel {
     private var perPage: Int = 30
     private var currentPage: Int = 0
     
+    var downloadAndShowTask: Task<Void, Never>? {
+        didSet {
+            if downloadAndShowTask == nil {
+                self.reloadTableView?()
+            } else {
+                //do cancel Action
+            }
+        }
+    }
+    
     init(dataLoader: DataLoader) {
         self.dataLoader = dataLoader
     }
   
+    // MARK: - Public
     func querySearch(query: String) {
-        
-        if isFetching {
-            return
-        }
-        
+        avoidMulitCall()
         searchText = query
-        
-        isFetching = true
-        
-        switch searchType {
-            case .repositories:
-                Task {
-                    await searchRepositories(page: 1)
-                }
-            case .issues:
-                Task {
-                    await searchIssues(page: 1)
-                }
-            case .people:
-                Task {
-                    await searchUserAndFetchInfo()
-                }
-            default:
-                break
-        }
+        searchByType()
     }
+    
+    func loadNextPage() {
+        avoidMulitCall()
+        searchByType()
+    }
+    
     
     func reset() {
         isFetching = false
@@ -69,8 +64,18 @@ class SearchViewModel {
     }
 }
 
-// MARK: - Search By Type
+// MARK: - Search Repositories
 extension SearchViewModel {
+    
+    func searchRepositoriesTask() {
+        downloadAndShowTask = Task.init(priority: .background) {
+            dataLoader.decoder.dateDecodingStrategy = .iso8601
+            currentPage = currentPage + 1
+            await searchRepositories(page: currentPage)
+            downloadAndShowTask = nil
+        }
+    }
+    
     func searchRepositories(page: Int) async {
 
         dataLoader.decoder.dateDecodingStrategy = .iso8601
@@ -103,6 +108,19 @@ extension SearchViewModel {
             
         }  catch  {
             print("searchRepositories error \(error)")
+        }
+    }
+}
+
+// MARK: - Search Issues
+extension SearchViewModel {
+    
+    func searchIssuesTask() {
+        downloadAndShowTask = Task.init(priority: .background) {
+            dataLoader.decoder.dateDecodingStrategy = .iso8601
+            currentPage = currentPage + 1
+            await searchIssues(page: currentPage)
+            downloadAndShowTask = nil
         }
     }
     
@@ -145,15 +163,19 @@ extension SearchViewModel {
 // MARK: - Search Users
 extension SearchViewModel {
     
-    func searchUserAndFetchInfo() async {
-        dataLoader.decoder.dateDecodingStrategy = .iso8601
-        currentPage = currentPage + 1
-        //print("Will fetchUser")
-        await fetchUser(page: currentPage)
-        //print("Has fetchUser")
-        //print("Will fetchUserInfo metadata")
-        await fetchUserInfo()
-        //print("Has fetchUserInfo metadata")
+    func searchUserAndFetchInfo() {
+        
+        downloadAndShowTask = Task.init(priority: .background) {
+            dataLoader.decoder.dateDecodingStrategy = .iso8601
+            currentPage = currentPage + 1
+            //print("Will fetchUser")
+            await fetchUser(page: currentPage)
+            //print("Has fetchUser")
+            //print("Will fetchUserInfo metadata")
+            await fetchUserInfo()
+            //print("Has fetchUserInfo metadata")
+            downloadAndShowTask = nil
+        }
     }
     
     func fetchUser(page: Int) async {
@@ -212,75 +234,88 @@ extension SearchViewModel {
     func fetchUserInfo() async {
         
         self.usersInfo = [UsersInfo]()
+        var urls = [URL]()
         
-        do {
+        urls = self.users.items.compactMap { item in
+            let path = item.url!
+            return URL(string: path)
+        }
             
-            try await withThrowingTaskGroup(of: (UsersInfo).self) { group -> Void in
-                
-                for index in 0...self.users.items.count - 1 {
-                    
-                    guard let url = self.users.items[index].url, let metadataUrl = URL(string: url) else {
-                        continue
-                    }
-                    
-                    group.addTask {
-                        if #available(iOS 15.0, *) {
-                            let metadata = try await self.dataLoader.fetchUserInfo(metadataUrl)
-                            return metadata
-                        } else {
-                            // Fallback on earlier versions
-                            let metadata = try await self.dataLoader.fetch(metadataUrl, decode: { json -> UsersInfo? in
-                                guard let feedResult = json as? UsersInfo else { return  nil }
-                                return feedResult
-                            })
-                            return try metadata.get()
-                        }
-                        
-                    }
-                    
-                    for try await result in group {
-                        self.usersInfo.append(result)
-                    }
+        if #available(iOS 15.0, *) {
+            
+            do {
+                for try await info in RemoteDataAsyncSequence(urls: urls) {
+                    self.usersInfo.append(info)
                 }
                 
-                //print("userInfo \(self.usersInfo)")
                 isFetching = false
                 self.reloadTableView?()
+                
+            } catch  {
+                
             }
-        } catch  {
-            print("Failed to load UsersInfo: \(error)")
+            
+        } else {
+            
+            do {
+                
+                try await withThrowingTaskGroup(of: (UsersInfo).self) { group -> Void in
+                    
+                    for index in 0...self.users.items.count - 1 {
+                        
+                        guard let url = self.users.items[index].url, let metadataUrl = URL(string: url) else {
+                            continue
+                        }
+                        
+                        group.addTask {
+                            if #available(iOS 15.0, *) {
+                                let metadata = try await self.dataLoader.fetchUserInfo(metadataUrl)
+                                return metadata
+                            } else {
+                                // Fallback on earlier versions
+                                let metadata = try await self.dataLoader.fetch(metadataUrl, decode: { json -> UsersInfo? in
+                                    guard let feedResult = json as? UsersInfo else { return  nil }
+                                    return feedResult
+                                })
+                                return try metadata.get()
+                            }
+                            
+                        }
+                        
+                        for try await result in group {
+                            self.usersInfo.append(result)
+                        }
+                    }
+                    
+                    isFetching = false
+                    self.reloadTableView?()
+                }
+            } catch  {
+                print("Failed to load UsersInfo: \(error)")
+            }
         }
     }
 }
 
-// MARK: - loadNextPage
+// MARK: - Private
 extension SearchViewModel {
-    func loadNextPage() {
-        
+    
+    func avoidMulitCall() {
         if isFetching {
-            return
-        }
-
-        if canFetchMore == false {
             return
         }
         
         isFetching = true
-        
+    }
+    
+    func searchByType() {
         switch searchType {
             case .repositories:
-                Task {
-                    await searchRepositories(page: currentPage)
-                }
+                searchRepositoriesTask()
             case .issues:
-                Task {
-                    await searchIssues(page: currentPage)
-                }
+                searchIssuesTask()
             case .people:
-                Task {
-                    await searchUserAndFetchInfo()
-                }
-
+                searchUserAndFetchInfo()
             default:
                 break
         }
