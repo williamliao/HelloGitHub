@@ -91,7 +91,7 @@ extension SearchView {
         viewModel.reloadTableView = { [weak self] in
             DispatchQueue.main.async {
                 self?.isLoading(isLoading: false)
-                self?.isSpinnerLoading(isLoading: true)
+                self?.isSpinnerLoading(isLoading: false)
                 self?.applyInitialSnapshots()
             }
         }
@@ -294,15 +294,17 @@ extension SearchView: UISearchBarDelegate {
         let strippedString =
             searchText.trimmingCharacters(in: whitespaceCharacterSet)
         
-        viewModel.reset()
+        closeSearchView()
         
+        isLoading(isLoading: true)
         viewModel.searchType = category
-       
         viewModel.querySearch(query: strippedString)
     }
     
     func closeSearchView() {
         viewModel.repo = nil
+        isLoading(isLoading: false)
+        isSpinnerLoading(isLoading: false)
         viewModel.reset()
         self.applyInitialSnapshots()
         self.endEditing(true)

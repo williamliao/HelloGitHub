@@ -36,7 +36,11 @@ struct RemoteDataAsyncIterator: AsyncIteratorProtocol {
         let dataLoader = DataLoader()
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
-        let metadata = try await dataLoader.fetchUserInfo(url)
-        return metadata
+        do {
+            let metadata = try await dataLoader.fetchUserInfo(url)
+            return metadata
+        } catch  {
+            throw error
+        }
     }
 }

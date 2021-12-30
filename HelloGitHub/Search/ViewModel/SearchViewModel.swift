@@ -108,6 +108,7 @@ extension SearchViewModel {
             
         }  catch  {
             print("searchRepositories error \(error)")
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
     }
 }
@@ -156,6 +157,7 @@ extension SearchViewModel {
             
         } catch  {
             print("searchIssues error \(error)")
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
     }
 }
@@ -227,7 +229,7 @@ extension SearchViewModel {
             }
             
         } catch  {
-            
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
     }
     
@@ -244,6 +246,7 @@ extension SearchViewModel {
         if #available(iOS 15.0, *) {
             
             do {
+                
                 for try await info in RemoteDataAsyncSequence(urls: urls) {
                     self.usersInfo.append(info)
                 }
@@ -252,7 +255,8 @@ extension SearchViewModel {
                 self.reloadTableView?()
                 
             } catch  {
-                
+                print("fetchUserInfo \(error)")
+                showError?(error as? NetworkError ?? NetworkError.unKnown)
             }
             
         } else {
@@ -292,6 +296,7 @@ extension SearchViewModel {
                 }
             } catch  {
                 print("Failed to load UsersInfo: \(error)")
+                showError?(error as? NetworkError ?? NetworkError.unKnown)
             }
         }
     }
