@@ -62,8 +62,8 @@
             filePath = "HelloGitHub/Search/ViewModel/SearchViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "334"
-            endingLineNumber = "334"
+            startingLineNumber = "340"
+            endingLineNumber = "340"
             landmarkName = "avoidMulitCall()"
             landmarkType = "7">
          </BreakpointContent>
@@ -110,8 +110,8 @@
             filePath = "HelloGitHub/Search/View/SearchView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "191"
-            endingLineNumber = "191"
+            startingLineNumber = "189"
+            endingLineNumber = "189"
             landmarkName = "configureUser()"
             landmarkType = "7">
          </BreakpointContent>

@@ -52,7 +52,7 @@ extension SearchView {
         searchViewController.searchBar.showsScopeBar = true
         searchViewController.isActive = true
         //searchViewController.searchResultsUpdater = self
-        searchViewController.searchBar.placeholder = "Type something here to search"
+        searchViewController.searchBar.placeholder = "Search GitHub"
         searchViewController.searchBar.scopeButtonTitles = SearchResults.SearchType.allCases.map { $0.rawValue }
         
         navItem.searchController = searchViewController
@@ -140,11 +140,9 @@ extension SearchView {
         switch viewModel.searchType {
             case .repositories:
                 configureRepo()
-            case .issues:
+            case .issues, .PRs:
                 configureIssues()
-            case .people:
-                configureUser()
-            case .organizations:
+            case .people, .organizations:
                 configureUser()
         }
 

@@ -24,6 +24,7 @@ class SearchViewController: UIViewController {
     }
     
     func renderView() {
+        self.title = "Search GitHub"
         searchView = SearchView(viewModel: viewModel, navItem: self.navigationItem)
         searchView.translatesAutoresizingMaskIntoConstraints = false
         

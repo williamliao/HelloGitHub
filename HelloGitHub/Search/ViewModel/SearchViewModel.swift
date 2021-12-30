@@ -129,6 +129,12 @@ extension SearchViewModel {
         
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
+        if (searchType == .issues) {
+            searchText = searchText.appending("+type:issue")
+        } else if (searchType == .PRs) {
+            searchText = searchText.appending("+type:pr")
+        }
+        
         do {
             let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText, numberOfPage: page), decode: { json -> Issues? in
                 guard let feedResult = json as? Issues else { return  nil }
@@ -342,11 +348,9 @@ extension SearchViewModel {
         switch searchType {
             case .repositories:
                 searchRepositoriesTask()
-            case .issues:
+            case .issues, .PRs:
                 searchIssuesTask()
-            case .people:
-                searchUserAndFetchInfo()
-            case .organizations:
+            case .people, .organizations:
                 searchUserAndFetchInfo()
         }
     }

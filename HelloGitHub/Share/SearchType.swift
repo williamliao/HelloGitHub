@@ -11,6 +11,7 @@ struct SearchResults: Codable {
     enum SearchType: Codable {
         case repositories
         case issues
+        case PRs
         case people
         case organizations
     }
@@ -23,20 +24,22 @@ extension SearchResults.SearchType: RawRepresentable {
 
     init?(rawValue: RawValue) {
         switch rawValue {
-            case "Repositories": self = .repositories
-            case "Issues & Pull": self = .issues
+            case "Repo": self = .repositories
+            case "Issues": self = .issues
+            case "PRs" : self = .PRs
             case "People": self = .people
-            case "Organizations": self = .organizations
+            case "Org": self = .organizations
             default: return nil
         }
     }
 
     var rawValue: RawValue {
         switch self {
-            case .repositories: return "Repositories"
-            case .issues: return "Issues & Pull"
+            case .repositories: return "Repo"
+            case .issues: return "Issues"
+            case .PRs: return "PRs"
             case .people: return "People"
-            case .organizations: return "Organizations"
+            case .organizations: return "Org"
         }
     }
 }
