@@ -12,16 +12,17 @@ struct RemoteDataAsyncSequence: AsyncSequence {
     typealias Element = UsersInfo
 
     var urls: [URL]
+    var urlSession: URLSession
 
     func makeAsyncIterator() -> RemoteDataAsyncIterator {
-        RemoteDataAsyncIterator(urls: urls)
+        RemoteDataAsyncIterator(urls: urls, urlSession: urlSession)
     }
 }
 
 @available(iOS 15.0, *)
 struct RemoteDataAsyncIterator: AsyncIteratorProtocol {
     var urls: [URL]
-    fileprivate var urlSession = URLSession.shared
+    var urlSession: URLSession
     fileprivate var index = 0
 
     

@@ -259,7 +259,7 @@ extension SearchViewModel {
             
             do {
                 
-                for try await info in RemoteDataAsyncSequence(urls: urls) {
+                for try await info in RemoteDataAsyncSequence(urls: urls, urlSession: URLSession.shared) {
                     self.usersInfo.append(info)
                 }
                 
