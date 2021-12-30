@@ -72,7 +72,6 @@ extension SearchViewModel {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
             await searchRepositories(page: currentPage)
-            downloadAndShowTask = nil
         }
     }
     
@@ -97,7 +96,7 @@ extension SearchViewModel {
                         }
                         
                         self.repo = repo
-                        self.reloadTableView?()
+                        downloadAndShowTask = nil
                     } else {
                         handleSearchRepositoriesNextPage(newRepo: repo)
                     }
@@ -121,7 +120,6 @@ extension SearchViewModel {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
             await searchIssues(page: currentPage)
-            downloadAndShowTask = nil
         }
     }
     
@@ -129,10 +127,12 @@ extension SearchViewModel {
         
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
-        if (searchType == .issues) {
-            searchText = searchText.appending("+type:issue")
-        } else if (searchType == .PRs) {
-            searchText = searchText.appending("+type:pr")
+        if page == 1 {
+            if (searchType == .issues) {
+                searchText = searchText.appending("+type:issue")
+            } else if (searchType == .PRs) {
+                searchText = searchText.appending("+type:pr")
+            }
         }
         
         do {
@@ -152,7 +152,7 @@ extension SearchViewModel {
                         }
                         
                         self.issues = issues
-                        self.reloadTableView?()
+                        downloadAndShowTask = nil
                     } else {
                         handleSearchIssuesNextPage(newIssues: issues)
                     }
@@ -182,16 +182,17 @@ extension SearchViewModel {
             //print("Will fetchUserInfo metadata")
             await fetchUserInfo()
             //print("Has fetchUserInfo metadata")
-            downloadAndShowTask = nil
         }
     }
     
     func fetchUser(page: Int) async {
         
-        if (searchType == .organizations) {
-            searchText = searchText.appending("+type:org")
-        } else if (searchType == .people) {
-            searchText = searchText.appending("+type:user")
+        if page == 1 {
+            if (searchType == .organizations) {
+                searchText = searchText.appending("+type:org")
+            } else if (searchType == .people) {
+                searchText = searchText.appending("+type:user")
+            }
         }
         
         do {
@@ -202,42 +203,11 @@ extension SearchViewModel {
             
             if page == 1 {
                 self.users = try result.get()
+                downloadAndShowTask = nil
             } else {
                 let newUsers = try result.get()
-                guard var totalUsers = self.users  else {
-                    return
-                }
-          
-               /* totalUsers.total_count = newUsers.total_count
-                totalUsers.incomplete_results = newUsers.incomplete_results
-                if (newUsers.items.count > 0) {
-                    for index in 0...newUsers.items.count - 1 {
-                        if !totalUsers.items.contains(newUsers.items[index]) {
-                            totalUsers.items.append(newUsers.items[index])
-                        }
-                    }
-                } else {
-                    self.canFetchMore = false
-                }
                 
-                if totalUsers.items.count < 30 {
-                    self.canFetchMore = false
-                } else {
-                   
-                    self.currentPage = self.currentPage + 1
-                }
-                
-                self.users = totalUsers
-                
-                if self.users.items.count == newUsers.total_count {
-                    self.canFetchMore = false
-                }
-                print(self.users.items.count)*/
-                
-                totalUsers.total_count = newUsers.total_count
-                totalUsers.incomplete_results = newUsers.incomplete_results
-                totalUsers.items.append(contentsOf: newUsers.items)
-                self.users = totalUsers
+                handleSearchUsersNextPage(newUsers: newUsers)
             }
             
         } catch  {
@@ -264,7 +234,7 @@ extension SearchViewModel {
                 }
                 
                 isFetching = false
-                self.reloadTableView?()
+                downloadAndShowTask = nil
                 
             } catch  {
                 print("fetchUserInfo \(error)")
@@ -304,7 +274,7 @@ extension SearchViewModel {
                     }
                     
                     isFetching = false
-                    self.reloadTableView?()
+                    downloadAndShowTask = nil
                 }
             } catch  {
                 print("Failed to load UsersInfo: \(error)")
@@ -328,7 +298,6 @@ extension SearchViewModel {
             //print("Will fetchUserInfo metadata")
             await fetchUserInfo()
             //print("Has fetchUserInfo metadata")
-            downloadAndShowTask = nil
         }
     }
 }
@@ -362,31 +331,18 @@ extension SearchViewModel {
   
         totalRepo.total_count = newRepo.total_count
         totalRepo.incomplete_results = newRepo.incomplete_results
-        totalRepo.license = newRepo.license
-        if (newRepo.items.count > 0) {
-            for index in 0...newRepo.items.count - 1 {
-                if !totalRepo.items.contains(newRepo.items[index]) {
-                    totalRepo.items.append(newRepo.items[index])
-                }
-            }
-        } else {
-            self.canFetchMore = false
-        }
+        totalRepo.items.append(contentsOf: newRepo.items)
+        self.repo = totalRepo
         
         if totalRepo.items.count < 30 {
             self.canFetchMore = false
-        } else {
-           
-            self.currentPage = self.currentPage + 1
         }
-        
-        self.repo = totalRepo
         
         if self.repo.items.count == newRepo.total_count {
             self.canFetchMore = false
         }
         
-        self.reloadTableView?()
+        downloadAndShowTask = nil
     }
     
     func handleSearchIssuesNextPage(newIssues: Issues) {
@@ -396,30 +352,18 @@ extension SearchViewModel {
   
         totalIssues.total_count = newIssues.total_count
         totalIssues.incomplete_results = newIssues.incomplete_results
-        if (newIssues.items.count > 0) {
-            for index in 0...newIssues.items.count - 1 {
-                if !totalIssues.items.contains(newIssues.items[index]) {
-                    totalIssues.items.append(newIssues.items[index])
-                }
-            }
-        } else {
-            self.canFetchMore = false
-        }
+        totalIssues.items.append(contentsOf: newIssues.items)
+        self.issues = totalIssues
         
         if totalIssues.items.count < 30 {
             self.canFetchMore = false
-        } else {
-           
-            self.currentPage = self.currentPage + 1
         }
         
-        self.issues = totalIssues
-        
-        if self.repo.items.count == newIssues.total_count {
+        if self.issues.items.count == newIssues.total_count {
             self.canFetchMore = false
         }
         
-        self.reloadTableView?()
+        downloadAndShowTask = nil
     }
     
     func handleSearchUsersNextPage(newUsers: Users) {
@@ -427,31 +371,17 @@ extension SearchViewModel {
             return
         }
   
-        totalUsers.total_count = repo.total_count
-        totalUsers.incomplete_results = repo.incomplete_results
-        if (newUsers.items.count > 0) {
-            for index in 0...newUsers.items.count - 1 {
-                if !totalUsers.items.contains(newUsers.items[index]) {
-                    totalUsers.items.append(newUsers.items[index])
-                }
-            }
-        } else {
-            self.canFetchMore = false
-        }
+        totalUsers.total_count = newUsers.total_count
+        totalUsers.incomplete_results = newUsers.incomplete_results
+        totalUsers.items.append(contentsOf: newUsers.items)
+        self.users = totalUsers
         
         if totalUsers.items.count < 30 {
             self.canFetchMore = false
-        } else {
-           
-            self.currentPage = self.currentPage + 1
         }
         
-        self.users = totalUsers
-        
-        if self.repo.items.count == newUsers.total_count {
+        if self.users.items.count == newUsers.total_count {
             self.canFetchMore = false
         }
-        
-        self.finishedHandleNextPageUser?()
     }
 }
