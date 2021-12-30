@@ -102,3 +102,10 @@ extension UsersInfo: Hashable, Equatable {
         return lhs.id == rhs.id
     }
 }
+
+struct UserInfoRespone {
+    let users: [Users]
+    let info: [UsersInfo]
+}
+
+

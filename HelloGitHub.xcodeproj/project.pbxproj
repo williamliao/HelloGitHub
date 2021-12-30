@@ -26,6 +26,7 @@
 		C823AF2D277BEC5C005177C7 /* SearchRepositoriesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C823AF2C277BEC5C005177C7 /* SearchRepositoriesCell.swift */; };
 		C823AF31277C2D8C005177C7 /* SearchUsersCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C823AF30277C2D8B005177C7 /* SearchUsersCell.swift */; };
 		C823AF33277C2FE8005177C7 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = C823AF32277C2FE8005177C7 /* Users.swift */; };
+		C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C889D817277D902600DD72EB /* RemoteDataAsyncSequence.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
 		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
@@ -72,6 +73,7 @@
 		C823AF2C277BEC5C005177C7 /* SearchRepositoriesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRepositoriesCell.swift; sourceTree = "<group>"; };
 		C823AF30277C2D8B005177C7 /* SearchUsersCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUsersCell.swift; sourceTree = "<group>"; };
 		C823AF32277C2FE8005177C7 /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
+		C889D817277D902600DD72EB /* RemoteDataAsyncSequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDataAsyncSequence.swift; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
 		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 				C8B8254B277AF90B00235990 /* Commits.swift */,
 				C8B8254D277B190E00235990 /* Issues.swift */,
 				C823AF32277C2FE8005177C7 /* Users.swift */,
+				C889D817277D902600DD72EB /* RemoteDataAsyncSequence.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -350,6 +353,7 @@
 				C8B8254A277AF68600235990 /* SearchType.swift in Sources */,
 				C823AF2B277BEC3A005177C7 /* SearchIssuesCell.swift in Sources */,
 				C81079E42779BCB800BBC01B /* SearchViewController.swift in Sources */,
+				C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
 				C8B8254E277B190E00235990 /* Issues.swift in Sources */,
 				C81079EB2779BD2000BBC01B /* SearchViewModel.swift in Sources */,
