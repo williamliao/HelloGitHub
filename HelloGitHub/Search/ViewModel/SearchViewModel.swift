@@ -182,6 +182,12 @@ extension SearchViewModel {
     
     func fetchUser(page: Int) async {
         
+        if (searchType == .organizations) {
+            searchText = searchText.appending("+type:org")
+        } else if (searchType == .people) {
+            searchText = searchText.appending("+type:user")
+        }
+        
         do {
             let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText, numberOfPage: page), decode: { json -> Users? in
                 guard let feedResult = json as? Users else { return  nil }
@@ -302,6 +308,25 @@ extension SearchViewModel {
     }
 }
 
+// MARK: - Search Organizations
+extension SearchViewModel {
+    
+    func searchOrganizationsAndFetchInfo() {
+        
+        downloadAndShowTask = Task.init(priority: .background) {
+            dataLoader.decoder.dateDecodingStrategy = .iso8601
+            currentPage = currentPage + 1
+            //print("Will fetchUser")
+            await fetchUser(page: currentPage)
+            //print("Has fetchUser")
+            //print("Will fetchUserInfo metadata")
+            await fetchUserInfo()
+            //print("Has fetchUserInfo metadata")
+            downloadAndShowTask = nil
+        }
+    }
+}
+
 // MARK: - Private
 extension SearchViewModel {
     
@@ -321,8 +346,8 @@ extension SearchViewModel {
                 searchIssuesTask()
             case .people:
                 searchUserAndFetchInfo()
-            default:
-                break
+            case .organizations:
+                searchUserAndFetchInfo()
         }
     }
     

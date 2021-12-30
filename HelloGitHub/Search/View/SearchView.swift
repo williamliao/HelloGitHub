@@ -144,8 +144,8 @@ extension SearchView {
                 configureIssues()
             case .people:
                 configureUser()
-            default:
-                break
+            case .organizations:
+                configureUser()
         }
 
     }

@@ -136,7 +136,6 @@ extension EndPoint {
                 URLQueryItem(name: "order", value: ordering.rawValue),
                 URLQueryItem(name: "per_page", value: String(perPage)),
                 URLQueryItem(name: "page", value: String(page)),
-                URLQueryItem(name: "type", value: "user"),
             ]
         )
     }
