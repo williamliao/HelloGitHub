@@ -97,7 +97,7 @@ extension DataLoader {
         let metadataRequest = URLRequest(url: metadataUrl)
         let (data, metadataResponse) = try await URLSession.shared.data(for: metadataRequest)
         guard (metadataResponse as? HTTPURLResponse)?.statusCode == 200 else {
-            throw NetworkError.invalidMetadata
+            throw handleHTTPResponse(statusCode: (metadataResponse as? HTTPURLResponse)?.statusCode ?? 999)
         }
         
         return try self.decoder.decode(UsersInfo.self, from: data)
@@ -308,6 +308,11 @@ extension DataLoader {
                     return NetworkError.statusCodeError(statusCode)
             }
         } else {
+            
+            if statusCode == 999 {
+                return NetworkError.unKnown
+            }
+            
             // Server returned response with status code different than expected `successCodes`.
             let info = [
                 NSLocalizedDescriptionKey: "Request failed with code \(statusCode)",
