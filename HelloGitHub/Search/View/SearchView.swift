@@ -18,6 +18,8 @@ class SearchView: UIView {
     var viewModel: SearchViewModel
     var navItem: UINavigationItem
     var cellHeightsDictionary: [IndexPath: CGFloat] = [:]
+    private var act = UIActivityIndicatorView(style: .large)
+    private var spinner = UIActivityIndicatorView(style: .large)
     
     init(viewModel: SearchViewModel,  navItem: UINavigationItem) {
         self.viewModel = viewModel
@@ -69,18 +71,27 @@ extension SearchView {
         tableView.register(SearchRepositoriesCell.self, forCellReuseIdentifier: SearchRepositoriesCell.reuseIdentifier)
         tableView.register(SearchIssuesCell.self, forCellReuseIdentifier: SearchIssuesCell.reuseIdentifier)
         tableView.register(SearchUsersCell.self, forCellReuseIdentifier: SearchUsersCell.reuseIdentifier)
+        
+        act.color = traitCollection.userInterfaceStyle == .light ? UIColor.black : UIColor.white
+        act.translatesAutoresizingMaskIntoConstraints = false
       
         self.addSubview(tableView)
+        self.addSubview(act)
         
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             tableView.topAnchor.constraint(equalTo: self.topAnchor),
+            
+            act.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            act.centerYAnchor.constraint(equalTo: self.centerYAnchor),
         ])
         
         viewModel.reloadTableView = { [weak self] in
             DispatchQueue.main.async {
+                self?.isLoading(isLoading: false)
+                self?.isSpinnerLoading(isLoading: true)
                 self?.applyInitialSnapshots()
             }
         }
@@ -204,8 +215,15 @@ extension SearchView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastElement = tableView.numberOfRows(inSection: indexPath.section) - 1
         
-        if !self.viewModel.isFetching && indexPath.row == lastElement {
-            self.cellHeightsDictionary[indexPath] = cell.frame.size.height
+        if !viewModel.isFetching && indexPath.row == lastElement {
+            
+            isSpinnerLoading(isLoading: true)
+            spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
+
+            self.tableView.tableFooterView = spinner
+            self.tableView.tableFooterView?.isHidden = false
+            
+            cellHeightsDictionary[indexPath] = cell.frame.size.height
             viewModel.loadNextPage()
         }
     }
@@ -236,6 +254,8 @@ extension SearchView: UISearchBarDelegate {
         guard let category = SearchResults.SearchType(rawValue:searchBar.scopeButtonTitles![searchBar.selectedScopeButtonIndex]) else {
             return
         }
+        
+        isLoading(isLoading: true)
         
         viewModel.searchType = category
        
@@ -301,3 +321,23 @@ extension SearchView: UISearchResultsUpdating {
 }
 
 // MARK: - Private
+
+extension SearchView {
+    func isLoading(isLoading: Bool) {
+        if isLoading {
+            act.startAnimating()
+        } else {
+            act.stopAnimating()
+        }
+        act.isHidden = !isLoading
+    }
+    
+    func isSpinnerLoading(isLoading: Bool) {
+        if isLoading {
+            spinner.startAnimating()
+        } else {
+            spinner.stopAnimating()
+        }
+        spinner.isHidden = !isLoading
+    }
+}

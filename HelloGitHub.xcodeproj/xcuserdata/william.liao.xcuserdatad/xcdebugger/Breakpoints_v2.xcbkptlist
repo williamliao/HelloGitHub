@@ -46,8 +46,8 @@
             filePath = "HelloGitHub/Search/View/SearchView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
             landmarkName = "makeSearchDataSource()"
             landmarkType = "7">
          </BreakpointContent>
