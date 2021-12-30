@@ -28,8 +28,8 @@ class SearchViewModel {
     private var canFetchMore = true
     
     private var perPage: Int = 30
-    private var currentPage: Int = 2
-
+    private var currentPage: Int = 0
+    
     init(dataLoader: DataLoader) {
         self.dataLoader = dataLoader
     }
@@ -65,7 +65,7 @@ class SearchViewModel {
     func reset() {
         isFetching = false
         canFetchMore = true
-        currentPage = 2
+        currentPage = 0
     }
 }
 
@@ -147,11 +147,16 @@ extension SearchViewModel {
     
     func searchUserAndFetchInfo() async {
         dataLoader.decoder.dateDecodingStrategy = .iso8601
-        self.users = await fetchUser(page: 1)
+        currentPage = currentPage + 1
+        //print("Will fetchUser")
+        await fetchUser(page: currentPage)
+        //print("Has fetchUser")
+        //print("Will fetchUserInfo metadata")
         await fetchUserInfo()
+        //print("Has fetchUserInfo metadata")
     }
     
-    func fetchUser(page: Int) async -> Users? {
+    func fetchUser(page: Int) async {
         
         do {
             let result = try await dataLoader.fetch(EndPoint.searchUsers(matching: searchText, numberOfPage: page), decode: { json -> Users? in
@@ -160,14 +165,14 @@ extension SearchViewModel {
             })
             
             if page == 1 {
-                return try result.get()
+                self.users = try result.get()
             } else {
                 let newUsers = try result.get()
                 guard var totalUsers = self.users  else {
-                    return nil
+                    return
                 }
           
-                totalUsers.total_count = newUsers.total_count
+               /* totalUsers.total_count = newUsers.total_count
                 totalUsers.incomplete_results = newUsers.incomplete_results
                 if (newUsers.items.count > 0) {
                     for index in 0...newUsers.items.count - 1 {
@@ -191,24 +196,33 @@ extension SearchViewModel {
                 if self.users.items.count == newUsers.total_count {
                     self.canFetchMore = false
                 }
-                print(self.users.items.count)
-                return self.users
+                print(self.users.items.count)*/
+                
+                totalUsers.total_count = newUsers.total_count
+                totalUsers.incomplete_results = newUsers.incomplete_results
+                totalUsers.items.append(contentsOf: newUsers.items)
+                self.users = totalUsers
             }
             
         } catch  {
-            return nil
+            
         }
     }
     
     func fetchUserInfo() async {
         
+        self.usersInfo = [UsersInfo]()
+        
         do {
+            
             try await withThrowingTaskGroup(of: (UsersInfo).self) { group -> Void in
+                
                 for index in 0...self.users.items.count - 1 {
+                    
                     guard let url = self.users.items[index].url, let metadataUrl = URL(string: url) else {
                         continue
                     }
-
+                    
                     group.addTask {
                         if #available(iOS 15.0, *) {
                             let metadata = try await self.dataLoader.fetchUserInfo(metadataUrl)
@@ -229,7 +243,8 @@ extension SearchViewModel {
                     }
                 }
                 
-                print("userInfo \(self.usersInfo)")
+                //print("userInfo \(self.usersInfo)")
+                isFetching = false
                 self.reloadTableView?()
             }
         } catch  {
@@ -242,13 +257,13 @@ extension SearchViewModel {
 extension SearchViewModel {
     func loadNextPage() {
         
-//        if isFetching {
-//            return
-//        }
-//
-//        if canFetchMore == false {
-//            return
-//        }
+        if isFetching {
+            return
+        }
+
+        if canFetchMore == false {
+            return
+        }
         
         isFetching = true
         
@@ -263,10 +278,9 @@ extension SearchViewModel {
                 }
             case .people:
                 Task {
-                    dataLoader.decoder.dateDecodingStrategy = .iso8601
-                    self.users = await fetchUser(page: currentPage)
-                    await fetchUserInfo()
+                    await searchUserAndFetchInfo()
                 }
+
             default:
                 break
         }

@@ -77,7 +77,7 @@ struct UsersInfo: Codable {
     let starred_url: String?
     let events_url: String?
     let site_admin: Bool
-    let name: String
+    let name: String?
     let company: String?
     let blog: String?
     let location: String?

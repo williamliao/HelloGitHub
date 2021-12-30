@@ -204,7 +204,7 @@ extension SearchView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastElement = tableView.numberOfRows(inSection: indexPath.section) - 1
         
-        if indexPath.row == lastElement {
+        if !self.viewModel.isFetching && indexPath.row == lastElement {
             self.cellHeightsDictionary[indexPath] = cell.frame.size.height
             viewModel.loadNextPage()
         }
