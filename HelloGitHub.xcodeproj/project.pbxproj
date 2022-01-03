@@ -32,6 +32,9 @@
 		C88EE6F627828DAC00F09648 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F527828DAC00F09648 /* LoginView.swift */; };
 		C88EE6F82782926800F09648 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F72782926800F09648 /* LoginViewController.swift */; };
 		C88EE6FA2782929300F09648 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F92782929300F09648 /* LoginViewModel.swift */; };
+		C88EE6FC27829F5700F09648 /* windows.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6FB27829F5700F09648 /* windows.swift */; };
+		C88EE6FE2782C81B00F09648 /* DataLoader+User.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6FD2782C81B00F09648 /* DataLoader+User.swift */; };
+		C88EE7002782CAA500F09648 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6FF2782CAA500F09648 /* Token.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
 		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
@@ -84,6 +87,9 @@
 		C88EE6F527828DAC00F09648 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		C88EE6F72782926800F09648 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		C88EE6F92782929300F09648 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		C88EE6FB27829F5700F09648 /* windows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = windows.swift; sourceTree = "<group>"; };
+		C88EE6FD2782C81B00F09648 /* DataLoader+User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataLoader+User.swift"; sourceTree = "<group>"; };
+		C88EE6FF2782CAA500F09648 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
 		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
@@ -185,6 +191,7 @@
 			children = (
 				C81079DF2779AEC300BBC01B /* EndPoint.swift */,
 				C81079E12779B44C00BBC01B /* DataLoader.swift */,
+				C88EE6FD2782C81B00F09648 /* DataLoader+User.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -225,6 +232,7 @@
 				C81079EF2779C18B00BBC01B /* Bindable.swift */,
 				C8B82549277AF68600235990 /* SearchType.swift */,
 				C889D819277DB47500DD72EB /* String.swift */,
+				C88EE6FB27829F5700F09648 /* windows.swift */,
 			);
 			path = Share;
 			sourceTree = "<group>";
@@ -243,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				C88EE6F027828D3900F09648 /* UserAccount.swift */,
+				C88EE6FF2782CAA500F09648 /* Token.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -396,6 +405,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C88EE6F82782926800F09648 /* LoginViewController.swift in Sources */,
+				C88EE7002782CAA500F09648 /* Token.swift in Sources */,
 				C8B8254C277AF90B00235990 /* Commits.swift in Sources */,
 				C88EE6FA2782929300F09648 /* LoginViewModel.swift in Sources */,
 				C81079F02779C18B00BBC01B /* Bindable.swift in Sources */,
@@ -405,6 +415,7 @@
 				C88EE6F127828D3900F09648 /* UserAccount.swift in Sources */,
 				C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
+				C88EE6FC27829F5700F09648 /* windows.swift in Sources */,
 				C8B8254E277B190E00235990 /* Issues.swift in Sources */,
 				C81079EB2779BD2000BBC01B /* SearchViewModel.swift in Sources */,
 				C823AF33277C2FE8005177C7 /* Users.swift in Sources */,
@@ -413,6 +424,7 @@
 				C889D81A277DB47500DD72EB /* String.swift in Sources */,
 				C81079E92779BD1200BBC01B /* SearchView.swift in Sources */,
 				C81079E02779AEC300BBC01B /* EndPoint.swift in Sources */,
+				C88EE6FE2782C81B00F09648 /* DataLoader+User.swift in Sources */,
 				C81079AA2779ADE100BBC01B /* AppDelegate.swift in Sources */,
 				C81079AC2779ADE100BBC01B /* SceneDelegate.swift in Sources */,
 				C88EE6F627828DAC00F09648 /* LoginView.swift in Sources */,
