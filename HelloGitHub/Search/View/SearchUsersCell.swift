@@ -59,8 +59,6 @@ class SearchUsersCell: UITableViewCell {
         return label
     }()
     
-    private var descriptionHeightLayout: NSLayoutConstraint!
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureView()
@@ -89,9 +87,7 @@ extension SearchUsersCell {
     }
     
     func configureConstraints() {
-        
-        descriptionHeightLayout = descriptionLabel.heightAnchor.constraint(equalToConstant: 16)
-  
+       
         NSLayoutConstraint.activate([
             
             avatarImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
@@ -113,7 +109,7 @@ extension SearchUsersCell {
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
             descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            descriptionHeightLayout,
+
         ])
     }
 }
@@ -136,21 +132,8 @@ extension SearchUsersCell {
         } else {
             // Fallback on earlier versions
         }
-        
-        let newHeight = calcDescriptionHeight(description: descriptionLabel.text ?? "")
-        descriptionHeightLayout.constant = newHeight
     }
-    
-    func calcDescriptionHeight(description: String) -> CGFloat {
-        let paragraphStyle = NSMutableParagraphStyle()
-        
-        print("bio \(description)")
-      
-        let estimatedFrame = NSString(string: description).boundingRect(with: CGSize(width: UIScreen.main.bounds.size.width - 20, height: Double.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16), NSAttributedString.Key.paragraphStyle: paragraphStyle], context: nil)
-        
-        return ceil(estimatedFrame.size.height)
-    }
-    
+   
     @available(iOS 15.0, *)
     func downloadImage(_ imageUrl: URL?) async throws -> UIImage? {
         

@@ -40,7 +40,7 @@ class SearchIssuesCell: UITableViewCell {
         label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
-        label.lineBreakMode = .byTruncatingTail
+        label.lineBreakMode = .byWordWrapping
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -104,8 +104,7 @@ extension SearchIssuesCell {
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             titleLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 10),
-            titleLabel.heightAnchor.constraint(equalToConstant: 16),
-            
+
             conversationIcon.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             conversationIcon.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             conversationIcon.heightAnchor.constraint(equalToConstant: 21),
@@ -113,7 +112,7 @@ extension SearchIssuesCell {
             
             conversationLabel.leadingAnchor.constraint(equalTo: conversationIcon.trailingAnchor, constant: 0),
             conversationLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            conversationLabel.heightAnchor.constraint(equalToConstant: 22),
+            conversationLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             
             timeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
             timeLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
