@@ -33,8 +33,16 @@ class LoginViewModel {
             guard let url = url else { return }
             guard let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems else { return }
             guard let code = queryItems.first(where: { $0.name == "code" })?.value else { return }
-            // 回傳 code 並結束第一步驟
-            completionHandler(code)
+            guard let state = queryItems.first(where: { $0.name == "state" })?.value else { return }
+            
+            if state == codeVerifier {
+                // 回傳 code 並結束第一步驟
+                completionHandler(code)
+            } else {
+                //Something Happended,this may not expect
+                //If the states don't match, then a third party created the request, and you should abort the process
+                session?.cancel()
+            }
         }
         session?.presentationContextProvider = window
         session?.prefersEphemeralWebBrowserSession = true
