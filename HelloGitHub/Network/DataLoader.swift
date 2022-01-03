@@ -31,6 +31,8 @@ enum NetworkError: Error {
     case networkAuthenticationRequired //511
     case invalidImage
     case invalidMetadata
+    case invalidToken
+    case invalidURLRequest
     case unKnown
 }
 
@@ -43,6 +45,11 @@ class DataLoader {
     private var successCodes: CountableRange<Int> = 200..<299
     private var failureClientCodes: CountableRange<Int> = 400..<499
     private var failureBackendCodes: CountableRange<Int> = 500..<511
+    
+    enum EndPointType: String {
+        case login
+        case search
+    }
 
     init(session: URLSession = .shared, decoder: JSONDecoder = .init()) {
         self.urlSession = session
@@ -92,6 +99,26 @@ extension DataLoader {
         }
     }
     
+    func fetchToken<T: Decodable>(_ endpoint: LoginEndPoint, decode: @escaping (Decodable) -> T?) async throws -> Result<T, NetworkError> {
+        try Task.checkCancellation()
+        
+        do {
+            return try await withCheckedThrowingContinuation({
+                (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
+                requestToken(endpoint, decode: decode) { result in
+                    continuation.resume(returning: result)
+                }
+            })
+        } catch NetworkError.unAuthorized  {
+            return Result.failure(NetworkError.unAuthorized)
+        } catch NetworkError.timeOut  {
+            return Result.failure(NetworkError.timeOut)
+        } catch {
+            print("fetchDataWithConcurrency error \(error)")
+            return Result.failure(NetworkError.unKnown)
+        }
+    }
+    
     @available(iOS 15.0, *)
     func fetchUserInfo(_ metadataUrl: URL) async throws -> UsersInfo {
         let metadataRequest = URLRequest(url: metadataUrl)
@@ -114,7 +141,12 @@ extension DataLoader {
             return
         }
         
-        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
+        let request = searchURLRequest(with: url)
+        
+        guard let request = request else {
+            handler(Result.failure(NetworkError.invalidURLRequest))
+            return
+        }
        
         let task = decodingTaskWithConcurrency(with: request, decodingType: T.self) { (json , error) in
             
@@ -136,7 +168,12 @@ extension DataLoader {
     
     func request<T: Decodable>(_ endpoint: URL, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T, NetworkError>) -> Void) {
         
-        let request = URLRequest(url: endpoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
+        let request = searchURLRequest(with: endpoint)
+        
+        guard let request = request else {
+            handler(Result.failure(NetworkError.invalidURLRequest))
+            return
+        }
        
         let task = decodingTaskWithConcurrency(with: request, decodingType: T.self) { (json , error) in
             
@@ -152,6 +189,34 @@ extension DataLoader {
                     handler(.success(value))
                 }
             }
+        }
+        task.resume()
+    }
+    
+    func requestToken<T: Decodable>(_ endPoint: LoginEndPoint, decode: @escaping (Decodable) -> T?, handler: @escaping (Result<T, NetworkError>) -> Void) {
+     
+        let request = authorizedURLRequest(with: endPoint)
+        
+        guard let request = request else {
+            handler(.failure(NetworkError.invalidURLRequest))
+            return
+        }
+        
+        let task = decodingTaskWithConcurrency(with: request, decodingType: T.self) { (json , error) in
+            
+            DispatchQueue.main.async {
+                guard let json = json else {
+                    if let error = error {
+                        handler(Result.failure(error))
+                    }
+                    return
+                }
+
+                if let value = decode(json) {
+                    handler(.success(value))
+                }
+            }
+            
         }
         task.resume()
     }
@@ -189,11 +254,30 @@ extension DataLoader {
                     return
                 }
                 
-                do {
-                    let genericModel = try self.decoder.decode(decodingType, from: data)
-                    completion(genericModel, nil)
-                } catch {
-                    completion(nil, NetworkError.network(error))
+                if T.self == TokenResponse.self, let responseString = String(data: data, encoding: .utf8) {
+                    let components = responseString.components(separatedBy: "&")
+                    var dictionary: [String: String] = [:]
+                    for component in components {
+                        let itemComponents = component.components(separatedBy: "=")
+                        if let key = itemComponents.first, let value = itemComponents.last {
+                          dictionary[key] = value
+                        }
+                    }
+
+                    let expires_in = Int(dictionary["expires_in"] ?? "0")
+                    let refresh_token_expires_in = Int(dictionary["refresh_token_expires_in"] ?? "0")
+                    
+                    let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"])
+                    completion(token, nil)
+                    return
+                    
+                } else {
+                    do {
+                        let genericModel = try self.decoder.decode(decodingType, from: data)
+                        completion(genericModel, nil)
+                    } catch {
+                        completion(nil, NetworkError.network(error))
+                    }
                 }
                 
             } else if httpResponse.statusCode == 304 {
@@ -321,5 +405,25 @@ extension DataLoader {
             let error = NSError(domain: "NetworkService", code: statusCode, userInfo: info)
             return NetworkError.network(error)
         }
+    }
+    
+    func authorizedURLRequest(with endPoint: LoginEndPoint) -> URLRequest? {
+        let url = endPoint.tokenUrl!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        if let accessToken = DataLoader.accessToken {
+            request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.httpBody = endPoint.query?.data(using: .utf8)
+        return request
+    }
+    
+    func searchURLRequest(with endPoint: URL) -> URLRequest? {
+        var request = URLRequest(url: endPoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
+        if let accessToken = DataLoader.accessToken {
+            request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
+        }
+        return request
     }
 }
