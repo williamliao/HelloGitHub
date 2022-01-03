@@ -129,8 +129,7 @@ extension SearchRepositoriesCell {
             
             likeIcon.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             likeIcon.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
-            likeIcon.widthAnchor.constraint(equalToConstant: 16),
-            likeIcon.heightAnchor.constraint(equalToConstant: 16),
+            likeIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             
             likeLabel.leadingAnchor.constraint(equalTo: likeIcon.trailingAnchor, constant: 0),
             likeLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
@@ -155,7 +154,9 @@ extension SearchRepositoriesCell {
         repo.bind(\.stargazers_count, to: likeLabel, \.text, transform: String.init)
         repo.bind(\.language, to: languageLabel, \.text)
         
-        likeIcon.image = UIImage(systemName: "star")
+        let font = UIFont.systemFont(ofSize: 12)
+        let configuration = UIImage.SymbolConfiguration(font: font)
+        likeIcon.image = UIImage(systemName: "star", withConfiguration: configuration)
 
         let labelSize = likeLabel.calculateLabelFrame()
         likeLabelWidthLayoutConstraint.constant = labelSize.width
