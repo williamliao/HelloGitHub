@@ -107,9 +107,8 @@ extension SearchIssuesCell {
 
             conversationIcon.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             conversationIcon.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
-            conversationIcon.heightAnchor.constraint(equalToConstant: 21),
-            conversationIcon.widthAnchor.constraint(equalToConstant: 21),
-            
+            conversationIcon.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+
             conversationLabel.leadingAnchor.constraint(equalTo: conversationIcon.trailingAnchor, constant: 0),
             conversationLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10),
             conversationLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
@@ -129,7 +128,10 @@ extension SearchIssuesCell {
         item.bind(\.title, to: titleLabel, \.text)
         item.bind(\.comments, to: conversationLabel, \.text, transform: String.init)
         item.bind(\.created_at, to: timeLabel, \.text, transform: String.init)
-        conversationIcon.image = UIImage(systemName: "bubble.left.and.bubble.right.fill")
+        
+        let font = UIFont.systemFont(ofSize: 12)
+        let configuration = UIImage.SymbolConfiguration(font: font)
+        conversationIcon.image = UIImage(systemName: "bubble.left.and.bubble.right.fill", withConfiguration: configuration)
     }
     
     func formatDate(_ created_at: Date) {
