@@ -28,6 +28,10 @@
 		C823AF33277C2FE8005177C7 /* Users.swift in Sources */ = {isa = PBXBuildFile; fileRef = C823AF32277C2FE8005177C7 /* Users.swift */; };
 		C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = C889D817277D902600DD72EB /* RemoteDataAsyncSequence.swift */; };
 		C889D81A277DB47500DD72EB /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = C889D819277DB47500DD72EB /* String.swift */; };
+		C88EE6F127828D3900F09648 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F027828D3900F09648 /* UserAccount.swift */; };
+		C88EE6F627828DAC00F09648 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F527828DAC00F09648 /* LoginView.swift */; };
+		C88EE6F82782926800F09648 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F72782926800F09648 /* LoginViewController.swift */; };
+		C88EE6FA2782929300F09648 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE6F92782929300F09648 /* LoginViewModel.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
 		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
@@ -76,6 +80,10 @@
 		C823AF32277C2FE8005177C7 /* Users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Users.swift; sourceTree = "<group>"; };
 		C889D817277D902600DD72EB /* RemoteDataAsyncSequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDataAsyncSequence.swift; sourceTree = "<group>"; };
 		C889D819277DB47500DD72EB /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		C88EE6F027828D3900F09648 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
+		C88EE6F527828DAC00F09648 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		C88EE6F72782926800F09648 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		C88EE6F92782929300F09648 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
 		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
@@ -129,6 +137,7 @@
 		C81079A82779ADE100BBC01B /* HelloGitHub */ = {
 			isa = PBXGroup;
 			children = (
+				C88EE6EF27828D2300F09648 /* Login */,
 				C81079EE2779C17F00BBC01B /* Share */,
 				C81079E72779BCEB00BBC01B /* Search */,
 				C81079DE2779AEB200BBC01B /* Network */,
@@ -218,6 +227,41 @@
 				C889D819277DB47500DD72EB /* String.swift */,
 			);
 			path = Share;
+			sourceTree = "<group>";
+		};
+		C88EE6EF27828D2300F09648 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE6F427828D5500F09648 /* ViewModel */,
+				C88EE6F327828D4C00F09648 /* View */,
+				C88EE6F227828D4000F09648 /* Model */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		C88EE6F227828D4000F09648 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE6F027828D3900F09648 /* UserAccount.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C88EE6F327828D4C00F09648 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE6F527828DAC00F09648 /* LoginView.swift */,
+				C88EE6F72782926800F09648 /* LoginViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C88EE6F427828D5500F09648 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE6F92782929300F09648 /* LoginViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -351,11 +395,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C88EE6F82782926800F09648 /* LoginViewController.swift in Sources */,
 				C8B8254C277AF90B00235990 /* Commits.swift in Sources */,
+				C88EE6FA2782929300F09648 /* LoginViewModel.swift in Sources */,
 				C81079F02779C18B00BBC01B /* Bindable.swift in Sources */,
 				C8B8254A277AF68600235990 /* SearchType.swift in Sources */,
 				C823AF2B277BEC3A005177C7 /* SearchIssuesCell.swift in Sources */,
 				C81079E42779BCB800BBC01B /* SearchViewController.swift in Sources */,
+				C88EE6F127828D3900F09648 /* UserAccount.swift in Sources */,
 				C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
 				C8B8254E277B190E00235990 /* Issues.swift in Sources */,
@@ -368,6 +415,7 @@
 				C81079E02779AEC300BBC01B /* EndPoint.swift in Sources */,
 				C81079AA2779ADE100BBC01B /* AppDelegate.swift in Sources */,
 				C81079AC2779ADE100BBC01B /* SceneDelegate.swift in Sources */,
+				C88EE6F627828DAC00F09648 /* LoginView.swift in Sources */,
 				C823AF2D277BEC5C005177C7 /* SearchRepositoriesCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
