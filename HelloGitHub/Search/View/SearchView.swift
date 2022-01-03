@@ -65,9 +65,9 @@ extension SearchView {
         tableView = UITableView()
         tableView.delegate = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        self.tableView.estimatedRowHeight = 120
-        self.tableView.rowHeight = UITableView.automaticDimension
-        
+        tableView.estimatedRowHeight = 150
+        tableView.rowHeight = UITableView.automaticDimension
+
         tableView.register(SearchRepositoriesCell.self, forCellReuseIdentifier: SearchRepositoriesCell.reuseIdentifier)
         tableView.register(SearchIssuesCell.self, forCellReuseIdentifier: SearchIssuesCell.reuseIdentifier)
         tableView.register(SearchUsersCell.self, forCellReuseIdentifier: SearchUsersCell.reuseIdentifier)
@@ -204,14 +204,15 @@ extension SearchView {
 }
 
 // MARK: - UICollectionView Delegate
-extension SearchView: UITableViewDelegate {
+extension SearchView: UITableViewDelegate, UIScrollViewDelegate {
     func tableView(_ tableView: UITableView,
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 120
+        return UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastElement = tableView.numberOfRows(inSection: indexPath.section) - 1
+        cellHeightsDictionary[indexPath] = cell.frame.size.height
         
         if !viewModel.isFetching && indexPath.row == lastElement {
             
@@ -221,7 +222,6 @@ extension SearchView: UITableViewDelegate {
             self.tableView.tableFooterView = spinner
             self.tableView.tableFooterView?.isHidden = false
             
-            cellHeightsDictionary[indexPath] = cell.frame.size.height
             viewModel.loadNextPage()
         }
     }

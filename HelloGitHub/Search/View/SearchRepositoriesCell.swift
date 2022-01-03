@@ -40,7 +40,7 @@ class SearchRepositoriesCell: UITableViewCell {
         label.textColor = .label
         label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
-        label.lineBreakMode = .byTruncatingTail
+        label.lineBreakMode = .byWordWrapping
         label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -74,6 +74,8 @@ class SearchRepositoriesCell: UITableViewCell {
         return label
     }()
     
+    private var likeLabelWidthLayoutConstraint: NSLayoutConstraint!
+   
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureView()
@@ -106,36 +108,39 @@ extension SearchRepositoriesCell {
     }
     
     func configureConstraints() {
-  
+        
+        likeLabelWidthLayoutConstraint = likeLabel.widthAnchor.constraint(equalToConstant: 50)
+        
         NSLayoutConstraint.activate([
             
             userNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             userNameLabel.heightAnchor.constraint(equalToConstant: 16),
             
             nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 5),
             nameLabel.heightAnchor.constraint(equalToConstant: 16),
             
             descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
             descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10),
-            descriptionLabel.heightAnchor.constraint(equalToConstant: 16),
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             
             likeIcon.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15),
-            likeIcon.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 10),
-            likeIcon.heightAnchor.constraint(equalToConstant: 22),
-            likeIcon.widthAnchor.constraint(equalToConstant: 22),
+            likeIcon.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
+            likeIcon.widthAnchor.constraint(equalToConstant: 16),
+            likeIcon.heightAnchor.constraint(equalToConstant: 16),
             
             likeLabel.leadingAnchor.constraint(equalTo: likeIcon.trailingAnchor, constant: 0),
-            likeLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 10),
-            likeLabel.heightAnchor.constraint(equalToConstant: 22),
+            likeLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
+            likeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            likeLabel.heightAnchor.constraint(equalToConstant: 16),
+            likeLabelWidthLayoutConstraint,
     
             languageLabel.leadingAnchor.constraint(equalTo: likeLabel.trailingAnchor, constant: 5),
-            languageLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 10),
-            languageLabel.heightAnchor.constraint(equalToConstant: 22),
+            languageLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
+            languageLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             languageLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
         ])
     }
@@ -151,6 +156,9 @@ extension SearchRepositoriesCell {
         repo.bind(\.language, to: languageLabel, \.text)
         
         likeIcon.image = UIImage(systemName: "star")
+
+        let labelSize = likeLabel.calculateLabelFrame()
+        likeLabelWidthLayoutConstraint.constant = labelSize.width
     }
     
     func configureCommitsBindData(repo: Bindable<CommitItem>) {
