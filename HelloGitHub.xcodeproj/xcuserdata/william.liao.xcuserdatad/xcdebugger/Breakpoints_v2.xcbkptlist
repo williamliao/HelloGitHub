@@ -87,16 +87,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "19552C10-3F68-4000-91A8-7F7CF0E7F392"
+            uuid = "7EC55062-9C74-4150-8B0A-34C407B45AFF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloGitHub/Login/View/LoginViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "23"
-            endingLineNumber = "23"
-            landmarkName = "renderView()"
+            startingLineNumber = "44"
+            endingLineNumber = "44"
+            landmarkName = "showErrorToast(error:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

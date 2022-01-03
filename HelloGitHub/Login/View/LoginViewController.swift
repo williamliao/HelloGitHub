@@ -20,7 +20,7 @@ class LoginViewController: UIViewController {
 
     func renderView() {
        
-        viewModel = LoginViewModel()
+        viewModel = LoginViewModel(oauthClient: RemoteOAuthClient())
         
         viewModel.showError = { [weak self] error in
             self?.showErrorToast(error: error)
