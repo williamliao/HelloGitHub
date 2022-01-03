@@ -57,14 +57,16 @@ class LoginView: UIView {
             DataLoader.refreshToken = token.refresh_token
             
             //GoToSearchView
-            let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-            let nav = mainStoryboard.instantiateViewController(withIdentifier: "SearchNav") as? UINavigationController
-            
-            guard let nav = nav else {
-                return
+            DispatchQueue.main.async {
+                let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+                let nav = mainStoryboard.instantiateViewController(withIdentifier: "SearchNav") as? UINavigationController
+                
+                guard let nav = nav else {
+                    return
+                }
+                UIApplication.shared.windows.first?.rootViewController = nav
+                UIApplication.shared.windows.first?.makeKeyAndVisible()
             }
-            UIApplication.shared.windows.first?.rootViewController = nav
-            UIApplication.shared.windows.first?.makeKeyAndVisible()
         }
     }
 }
