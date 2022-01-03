@@ -14,7 +14,7 @@ protocol OAuthClient {
         in window: UIWindow,
         redirectURI: String,
         codeVerifier: String,
-        completionHandler: @escaping (String?, NetworkError?) -> Void
+        completionHandler: @escaping (String, NetworkError?) -> Void
     )
     
     func retrieveToken(
@@ -46,11 +46,6 @@ class LoginViewModel {
             
             if let showError = error {
                 self?.showError?(showError)
-                return
-            }
-            
-            guard let code = code else {
-                self?.showError?(NetworkError.invalidToken)
                 return
             }
             
