@@ -19,8 +19,12 @@ class LoginViewController: UIViewController {
     
 
     func renderView() {
-        
+       
         viewModel = LoginViewModel()
+        
+        viewModel.showError = { [weak self] error in
+            self?.showErrorToast(error: error)
+        }
         
         self.title = "Login"
         loginView = LoginView(viewModel: viewModel)
@@ -36,4 +40,14 @@ class LoginViewController: UIViewController {
         ])
     }
 
+    func showErrorToast(error: NetworkError) {
+        switch error {
+            case .statusCodeError(let code):
+                print(code)
+            case .queryTimeLimit:
+                print("queryTimeLimit")
+            default:
+                print(error)
+        }
+    }
 }

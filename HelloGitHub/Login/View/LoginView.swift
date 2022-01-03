@@ -8,7 +8,7 @@
 import UIKit
 
 class LoginView: UIView {
-
+    
     private lazy var loginButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle("Login", for: .normal)
@@ -46,6 +46,25 @@ class LoginView: UIView {
     }
     
     @objc private func onTapLogin() {
-        viewModel.userDidTapLogin()
+        
+        guard let windows = self.window else {
+            return
+        }
+        
+        viewModel.authorize(in: windows) { token in
+            
+            DataLoader.accessToken = token.access_token
+            DataLoader.refreshToken = token.refresh_token
+            
+            //GoToSearchView
+            let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            let nav = mainStoryboard.instantiateViewController(withIdentifier: "SearchNav") as? UINavigationController
+            
+            guard let nav = nav else {
+                return
+            }
+            UIApplication.shared.windows.first?.rootViewController = nav
+            UIApplication.shared.windows.first?.makeKeyAndVisible()
+        }
     }
 }
