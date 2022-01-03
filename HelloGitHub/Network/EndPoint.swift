@@ -151,3 +151,64 @@ extension EndPoint {
         return components.url
     }
 }
+
+struct LoginEndPoint {
+    static let client_id = "Iv1.6e411d9570d13fa3"
+    static let client_secret = "f11de92814894e871402db35e7347c69a4bb7cd4"
+    let path: String
+    let queryItems: [URLQueryItem]
+}
+
+extension LoginEndPoint {
+    static func login(redirect redirectURI: String, state codeVerifier: String) -> LoginEndPoint {
+        return LoginEndPoint(
+            path: "/login/oauth/authorize",
+            queryItems: [
+                URLQueryItem(name: "client_id", value: client_id),
+                URLQueryItem(name: "redirect_uri", value: redirectURI),
+                URLQueryItem(name: "state", value: codeVerifier),
+            ]
+        )
+    }
+    
+    static func accessToken(received code: String, redirect redirectURI: String, state codeVerifier: String) -> LoginEndPoint {
+        return LoginEndPoint(
+            path: "/login/oauth/access_token",
+            queryItems: [
+                URLQueryItem(name: "client_id", value: client_id),
+                URLQueryItem(name: "client_secret", value: client_secret),
+                URLQueryItem(name: "redirect_uri", value: redirectURI),
+                URLQueryItem(name: "code", value: code),
+                URLQueryItem(name: "state", value: codeVerifier),
+            ]
+        )
+    }
+}
+
+extension LoginEndPoint {
+    var url: URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "github.com"
+        components.path = path
+        components.queryItems = queryItems
+        return components.url
+    }
+    
+    var tokenUrl: URL? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "github.com"
+        components.path = path
+        return components.url
+    }
+    
+    var query: String? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "github.com"
+        components.path = path
+        components.queryItems = queryItems
+        return components.query
+    }
+}
