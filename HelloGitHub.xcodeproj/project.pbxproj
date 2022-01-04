@@ -149,6 +149,7 @@
 			children = (
 				C88EE6EF27828D2300F09648 /* Login */,
 				C81079EE2779C17F00BBC01B /* Share */,
+				C88EE70B278431F000F09648 /* Profile */,
 				C81079E72779BCEB00BBC01B /* Search */,
 				C81079DE2779AEB200BBC01B /* Network */,
 				C81079A92779ADE100BBC01B /* AppDelegate.swift */,
@@ -254,7 +255,6 @@
 		C88EE6F227828D4000F09648 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				C88EE6F027828D3900F09648 /* UserAccount.swift */,
 				C88EE6FF2782CAA500F09648 /* Token.swift */,
 			);
 			path = Model;
@@ -275,6 +275,38 @@
 				C88EE6F92782929300F09648 /* LoginViewModel.swift */,
 				C88EE7032782EFA600F09648 /* OAuthClient.swift */,
 				C88EE7092783F54D00F09648 /* AuthManager.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C88EE70B278431F000F09648 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE70E2784321400F09648 /* ViewModel */,
+				C88EE70D2784320F00F09648 /* View */,
+				C88EE70C2784320800F09648 /* Model */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		C88EE70C2784320800F09648 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C88EE6F027828D3900F09648 /* UserAccount.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C88EE70D2784320F00F09648 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C88EE70E2784321400F09648 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
