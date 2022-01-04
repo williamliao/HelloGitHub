@@ -486,9 +486,6 @@ extension DataLoader {
         let url = endPoint.tokenUrl!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        if let accessToken = DataLoader.accessToken {
-            request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
-        }
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = endPoint.query?.data(using: .utf8)
         return request
