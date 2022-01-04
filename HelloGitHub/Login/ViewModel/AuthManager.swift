@@ -44,6 +44,12 @@ actor AuthManager {
             let dataLoader = DataLoader()
             let token = try await dataLoader.refreshToken(withRefreshToken: DataLoader.refreshToken ?? "")
             currentToken = token
+            
+            DataLoader.accessToken = token.access_token
+            DataLoader.refreshToken = token.refresh_token
+            DataLoader.expires = token.expires_in
+            DataLoader.refreshExpires = token.refresh_token_expires_in
+            
             return token
     
             // I'm just generating a dummy token
