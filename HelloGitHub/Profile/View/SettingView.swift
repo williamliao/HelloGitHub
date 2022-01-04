@@ -7,17 +7,6 @@
 
 import UIKit
 
-struct SettingItem: Hashable {
-    let title: String
-    let subTitle: String
-    private let id = UUID()
-
-    init(title: String, subTitle: String) {
-        self.title = title
-        self.subTitle = subTitle
-    }
-}
-
 class SettingView: UIView {
     
     var viewModel: SettingViewModel
@@ -41,10 +30,9 @@ class SettingView: UIView {
     
     var section: SectionLayoutKind = .profile
     
-
-    let settingTexts = [SettingItem(title: "Dark Mode", subTitle: "")]
-    let settingAboutTexts = [SettingItem(title: "版本資訊", subTitle: "1.0.0"), SettingItem(title: "使用條款", subTitle: ""), SettingItem(title: "隱私權條款", subTitle: "")]
-
+    var settingProfileTexts = [SettingItem]()
+    let settingTexts = [SettingItem(title: "Dark Mode", subTitle: "", image: nil)]
+    let settingAboutTexts = [SettingItem(title: "版本資訊", subTitle: "1.0.0", image: nil), SettingItem(title: "使用條款", subTitle: "", image: nil), SettingItem(title: "隱私權條款", subTitle: "", image: nil)]
     var dataSource: UICollectionViewDiffableDataSource<SectionLayoutKind, SettingItem>! = nil
     var collectionView: UICollectionView! = nil
 
@@ -78,21 +66,32 @@ extension SettingView {
     
     @available(iOS 14.0.0, *)
     func configureLayout() -> UICollectionViewLayout {
-      let provider = {(_: Int, layoutEnv: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+        let provider = {(_: Int, layoutEnv: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
         let configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
-        return .list(using: configuration, layoutEnvironment: layoutEnv)
-      }
-      return UICollectionViewCompositionalLayout(sectionProvider: provider)
+            return .list(using: configuration, layoutEnvironment: layoutEnv)
+        }
+        return UICollectionViewCompositionalLayout(sectionProvider: provider)
     }
     
     func configureDataSource() {
        
         if #available(iOS 14.0, *) {
             
-            let configuredProfileCell = UICollectionView.CellRegistration<SettingMainItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
+            let configuredProfileCell = UICollectionView.CellRegistration<UICollectionViewListCell, SettingItem> { (cell, indexPath, itemIdentifier) in
                 
+                var contentConfiguration = UIListContentConfiguration.subtitleCell()
                 
+                contentConfiguration.text = itemIdentifier.title
+                contentConfiguration.secondaryText = itemIdentifier.subTitle
                 
+                contentConfiguration.textProperties.color = .label
+                contentConfiguration.secondaryTextProperties.color = .systemGray
+                
+                if let avatarImage = itemIdentifier.image {
+                    contentConfiguration.image = avatarImage
+                }
+                
+                cell.contentConfiguration = contentConfiguration
             }
             
             let configuredMainCell = UICollectionView.CellRegistration<SettingMainItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
@@ -157,20 +156,25 @@ extension SettingView {
                         return collectionView.dequeueReusableCell(withReuseIdentifier: "SettingAboutItemCell_Id", for: indexPath)
                 }
             }
-            
         }
-        
-        
     }
     
     func applyInitialSnapshots() {
         // initial data
-        
         var snapshot = NSDiffableDataSourceSnapshot<SectionLayoutKind, SettingItem>()
         snapshot.appendSections(SectionLayoutKind.allCases)
         dataSource.apply(snapshot, animatingDifferences: false)
         
+        let name = self.viewModel.user.name ?? ""
+        let bio = self.viewModel.user.bio ?? "bio"
+        let image = self.viewModel.avatarImage ?? nil
+        settingProfileTexts.append(SettingItem(title: name, subTitle: bio, image: image))
+        
         if #available(iOS 14.0, *) {
+            var profileSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
+            profileSnapshot.append(settingProfileTexts)
+            dataSource.apply(profileSnapshot, to: .profile, animatingDifferences: false)
+            
             var mainSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
             mainSnapshot.append(settingTexts)
             dataSource.apply(mainSnapshot, to: .main, animatingDifferences: false)
@@ -180,11 +184,10 @@ extension SettingView {
             dataSource.apply(aboutSnapshot, to: .about, animatingDifferences: false)
         } else {
             // Fallback on earlier versions
-            
+            snapshot.appendItems(settingProfileTexts, toSection: .profile)
             snapshot.appendItems(settingTexts, toSection: .main)
             snapshot.appendItems(settingAboutTexts, toSection: .about)
             dataSource.apply(snapshot, animatingDifferences: false, completion: nil)
         }
-        
     }
 }

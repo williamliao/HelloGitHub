@@ -41,7 +41,7 @@ class SettingViewController: UIViewController {
         ])
         
         Task {
-            await viewModel.fetchUser()
+            await viewModel.fetchUserInfo()
         }
     }
 

@@ -41,6 +41,7 @@
 		C88EE712278435B200F09648 /* SettingMainItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE711278435B200F09648 /* SettingMainItemCell.swift */; };
 		C88EE714278436E700F09648 /* SettingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE713278436E700F09648 /* SettingViewModel.swift */; };
 		C88EE7162784370200F09648 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE7152784370200F09648 /* SettingViewController.swift */; };
+		C88EE718278448FD00F09648 /* SettingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE717278448FD00F09648 /* SettingItem.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
 		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
@@ -102,6 +103,7 @@
 		C88EE711278435B200F09648 /* SettingMainItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingMainItemCell.swift; sourceTree = "<group>"; };
 		C88EE713278436E700F09648 /* SettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewModel.swift; sourceTree = "<group>"; };
 		C88EE7152784370200F09648 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		C88EE717278448FD00F09648 /* SettingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingItem.swift; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
 		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
@@ -301,6 +303,7 @@
 			isa = PBXGroup;
 			children = (
 				C88EE6F027828D3900F09648 /* UserAccount.swift */,
+				C88EE717278448FD00F09648 /* SettingItem.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -479,6 +482,7 @@
 				C81079E92779BD1200BBC01B /* SearchView.swift in Sources */,
 				C81079E02779AEC300BBC01B /* EndPoint.swift in Sources */,
 				C88EE6FE2782C81B00F09648 /* DataLoader+User.swift in Sources */,
+				C88EE718278448FD00F09648 /* SettingItem.swift in Sources */,
 				C88EE714278436E700F09648 /* SettingViewModel.swift in Sources */,
 				C88EE7162784370200F09648 /* SettingViewController.swift in Sources */,
 				C81079AA2779ADE100BBC01B /* AppDelegate.swift in Sources */,

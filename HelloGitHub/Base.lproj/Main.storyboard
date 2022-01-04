@@ -25,10 +25,10 @@
             </objects>
             <point key="canvasLocation" x="1957.9710144927537" y="124.55357142857142"/>
         </scene>
-        <!--View Controller-->
+        <!--Setting View Controller-->
         <scene sceneID="orC-uh-3ux">
             <objects>
-                <viewController id="9YA-Kv-xlU" sceneMemberID="viewController">
+                <viewController id="9YA-Kv-xlU" customClass="SettingViewController" customModule="HelloGitHub" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="hiX-FC-dff">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
