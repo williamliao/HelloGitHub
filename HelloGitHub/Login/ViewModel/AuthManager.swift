@@ -42,7 +42,9 @@ actor AuthManager {
     
             // Normally you'd make a network call here. Could look like this:
             let dataLoader = DataLoader()
-            return try await dataLoader.refreshToken(withRefreshToken: DataLoader.accessToken!)
+            let token = try await dataLoader.refreshToken(withRefreshToken: DataLoader.refreshToken ?? "")
+            currentToken = token
+            return token
     
             // I'm just generating a dummy token
 //            let tokenExpiresAt = Date().addingTimeInterval(10)
