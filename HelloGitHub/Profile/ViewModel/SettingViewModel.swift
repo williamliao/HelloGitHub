@@ -125,7 +125,7 @@ extension SettingViewModel {
                 else { return }
             
             
-            DispatchQueue.global(qos: .default).async {
+            DispatchQueue.global(qos: .background).async {
 
                 guard let resizeImage = self.resizeImage(at: image) else {
                     return
