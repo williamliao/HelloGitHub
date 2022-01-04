@@ -31,7 +31,7 @@ struct UserAccount: Codable {
     let blog: String?
     let location: String?
     let email: String?
-    let hireable: Bool
+    let hireable: Bool?
     let bio: String?
     let twitter_username: String?
     let public_repos: Int
@@ -40,12 +40,12 @@ struct UserAccount: Codable {
     let following: Int
     let created_at: Date
     let updated_at: Date
-    let private_gists: Int
-    let total_private_repos: Int
-    let owned_private_repos: Int
-    let disk_usage: Double
-    let collaborators: Int
-    let two_factor_authentication: Bool
+    let private_gists: Int?
+    let total_private_repos: Int?
+    let owned_private_repos: Int?
+    let disk_usage: Double?
+    let collaborators: Int?
+    let two_factor_authentication: Bool?
     let plan: Plan?
 }
 
