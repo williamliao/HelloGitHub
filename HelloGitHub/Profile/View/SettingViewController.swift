@@ -19,6 +19,9 @@ class SettingViewController: UIViewController {
         viewModel.showError = { [weak self] error in
             self?.showErrorToast(error: error)
         }
+        viewModel.reloadData = { [weak self] in
+            self?.settingView.applyInitialSnapshots()
+        }
         renderView()
     }
     
@@ -36,6 +39,10 @@ class SettingViewController: UIViewController {
             settingView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
             settingView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
         ])
+        
+        Task {
+            await viewModel.fetchUser()
+        }
     }
 
     func showErrorToast(error: NetworkError) {

@@ -139,6 +139,13 @@ extension EndPoint {
             ]
         )
     }
+    
+    static func fetchUsers() -> EndPoint {
+        return EndPoint(
+            path: "/user",
+            queryItems: []
+        )
+    }
 }
 
 extension EndPoint {
@@ -153,8 +160,8 @@ extension EndPoint {
 }
 
 struct LoginEndPoint {
-    static let client_id = "Iv1.6e411d9570d13fa3"
-    static let client_secret = "f11de92814894e871402db35e7347c69a4bb7cd4"
+    static let client_id = ""
+    static let client_secret = ""
     let path: String
     let queryItems: [URLQueryItem]
 }

@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct UserAccount {
+struct UserAccount: Codable {
     let login: String
     let id: Int
     let node_id: String
-    let avatar_url: URL?
+    let avatar_url: String?
     let gravatar_id: String?
     let url: String?
     let html_url: String?
@@ -49,9 +49,32 @@ struct UserAccount {
     let plan: Plan?
 }
 
-struct Plan {
+struct Plan: Codable {
     let name: String?
     let space: Double
     let private_repos: Int
     let collaborators: Int
+}
+
+extension Plan: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(space)
+        hasher.combine(private_repos)
+        hasher.combine(collaborators)
+    }
+
+    static func == (lhs: Plan, rhs: Plan) -> Bool {
+        return lhs.name == rhs.name && lhs.space == rhs.space && lhs.private_repos == rhs.private_repos && lhs.collaborators == rhs.collaborators
+    }
+}
+
+extension UserAccount: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: UserAccount, rhs: UserAccount) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
