@@ -55,6 +55,8 @@ class LoginView: UIView {
             
             DataLoader.accessToken = token.access_token
             DataLoader.refreshToken = token.refresh_token
+            DataLoader.expires = token.expires_in
+            DataLoader.refreshExpires = token.refresh_token_expires_in
             
             //GoToSearchView
             DispatchQueue.main.async {

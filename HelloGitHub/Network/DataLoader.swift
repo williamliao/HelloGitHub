@@ -41,6 +41,7 @@ class DataLoader {
     
     var decoder: JSONDecoder
     private let urlSession: URLSession
+    private let oauthClient: OAuthClient
     
     private var successCodes: CountableRange<Int> = 200..<299
     private var failureClientCodes: CountableRange<Int> = 400..<499
@@ -51,9 +52,10 @@ class DataLoader {
         case search
     }
 
-    init(session: URLSession = .shared, decoder: JSONDecoder = .init()) {
+    init(session: URLSession = .shared, decoder: JSONDecoder = .init(), oauthClient: OAuthClient = RemoteOAuthClient()) {
         self.urlSession = session
         self.decoder = decoder
+        self.oauthClient = oauthClient
     }
 }
 
@@ -425,5 +427,28 @@ extension DataLoader {
             request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
         }
         return request
+    }
+    
+    func checkToken() {
+        
+        if let expires = DataLoader.expires, let token = DataLoader.accessToken  {
+        
+            let date = Date.init(timeIntervalSince1970: expires)
+            
+            if isSameDay(date1: date, date2: Date()) {
+                oauthClient.refreshToken(withToken: token) { token, error in
+                    DataLoader.accessToken = token?.access_token
+                }
+            }
+        }
+    }
+    
+    func isSameDay(date1: Date, date2: Date) -> Bool {
+        let diff = Calendar.current.dateComponents([.day], from: date1, to: date2)
+        if diff.day == 0 {
+            return true
+        } else {
+            return false
+        }
     }
 }
