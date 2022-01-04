@@ -42,6 +42,7 @@ class DataLoader {
     var decoder: JSONDecoder
     private let urlSession: URLSession
     private let oauthClient: OAuthClient
+    private let authManager: AuthManager
     
     private var successCodes: CountableRange<Int> = 200..<299
     private var failureClientCodes: CountableRange<Int> = 400..<499
@@ -52,10 +53,14 @@ class DataLoader {
         case search
     }
 
-    init(session: URLSession = .shared, decoder: JSONDecoder = .init(), oauthClient: OAuthClient = RemoteOAuthClient()) {
+    init(session: URLSession = .shared, decoder: JSONDecoder = .init()
+         , oauthClient: OAuthClient = RemoteOAuthClient()
+         , authManager: AuthManager = AuthManager())
+    {
         self.urlSession = session
         self.decoder = decoder
         self.oauthClient = oauthClient
+        self.authManager = authManager
     }
 }
 
@@ -112,7 +117,9 @@ extension DataLoader {
                 }
             })
         } catch NetworkError.unAuthorized  {
+            
             return Result.failure(NetworkError.unAuthorized)
+            
         } catch NetworkError.timeOut  {
             return Result.failure(NetworkError.timeOut)
         } catch {
@@ -130,6 +137,14 @@ extension DataLoader {
         }
         
         return try self.decoder.decode(UsersInfo.self, from: data)
+    }
+    
+    
+    func refreshToken(withRefreshToken: String) async throws -> TokenResponse {
+        
+        let endPoint = LoginEndPoint.refreshToken(received: withRefreshToken)
+        
+        return try await decodingTaskWithConcurrency(endPoint: endPoint.tokenUrl!, decodingType: TokenResponse.self) as! TokenResponse
     }
 }
 
@@ -223,6 +238,32 @@ extension DataLoader {
         task.resume()
     }
     
+    @available(iOS 15.0.0, *)
+    func loadAuthorized<T: Decodable>(_ url: LoginEndPoint, allowRetry: Bool = true) async throws -> T {
+        let request = authorizedURLRequest(with: url)
+        
+        guard let request = request else {
+            throw NetworkError.invalidToken
+        }
+
+        let (data, urlResponse) = try await URLSession.shared.data(for: request)
+    
+        // check the http status code and refresh + retry if we received 401 Unauthorized
+        if let httpResponse = urlResponse as? HTTPURLResponse, httpResponse.statusCode == 401 {
+            if allowRetry {
+                _ = try await authManager.refreshToken()
+                return try await loadAuthorized(url, allowRetry: false)
+            }
+    
+            throw NetworkError.invalidToken
+        }
+    
+        let decoder = JSONDecoder()
+        let response = try decoder.decode(T.self, from: data)
+    
+        return response
+    }
+    
     @available(iOS 13.0.0, *)
     private func decodingTaskWithConcurrency<T: Decodable>(with request: URLRequest, decodingType: T.Type, completionHandler completion: @escaping JSONTaskCompletionHandler) -> URLSessionDataTask {
         
@@ -266,8 +307,8 @@ extension DataLoader {
                         }
                     }
 
-                    let expires_in = Int(dictionary["expires_in"] ?? "0")
-                    let refresh_token_expires_in = Int(dictionary["refresh_token_expires_in"] ?? "0")
+                    let expires_in = Double(dictionary["expires_in"] ?? "0")
+                    let refresh_token_expires_in = Double(dictionary["refresh_token_expires_in"] ?? "0")
                     
                     let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"], isValid: true)
                     completion(token, nil)
@@ -284,6 +325,13 @@ extension DataLoader {
                 
             } else if httpResponse.statusCode == 304 {
                 completion(nil, NetworkError.notModified)
+            } else if httpResponse.statusCode == 401 {
+                
+                //_ = try await authManager.refreshToken()
+                //try await loadAuthorized(endPoint, decode: decode) { result in
+                    
+                //}
+                
             } else {
                 completion(nil, self.handleHTTPResponse(statusCode: httpResponse.statusCode))
             }
