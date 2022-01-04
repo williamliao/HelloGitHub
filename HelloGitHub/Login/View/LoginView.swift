@@ -61,12 +61,12 @@ class LoginView: UIView {
             //GoToSearchView
             DispatchQueue.main.async {
                 let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                let nav = mainStoryboard.instantiateViewController(withIdentifier: "SearchNav") as? UINavigationController
+                let tab = mainStoryboard.instantiateViewController(withIdentifier: "TabBarCtrl") as? UITabBarController
                 
-                guard let nav = nav else {
+                guard let tab = tab else {
                     return
                 }
-                UIApplication.shared.windows.first?.rootViewController = nav
+                UIApplication.shared.windows.first?.rootViewController = tab
                 UIApplication.shared.windows.first?.makeKeyAndVisible()
             }
         }

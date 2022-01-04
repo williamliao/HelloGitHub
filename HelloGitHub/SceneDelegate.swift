@@ -20,13 +20,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let _ = DataLoader.accessToken {
             //User Is Login
             let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-            let nav = mainStoryboard.instantiateViewController(withIdentifier: "SearchNav") as? UINavigationController
+            let tab = mainStoryboard.instantiateViewController(withIdentifier: "TabBarCtrl") as? UITabBarController
             
-            guard let nav = nav else {
+            guard let tab = tab else {
                 return
             }
             
-            self.window?.rootViewController = nav
+            self.window?.rootViewController = tab
             self.window?.makeKeyAndVisible()
             
         }
