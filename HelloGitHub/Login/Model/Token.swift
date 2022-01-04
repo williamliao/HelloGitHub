@@ -14,4 +14,5 @@ struct TokenResponse: Codable {
     var refresh_token_expires_in: Int?
     var scope: String?
     var token_type: String?
+    var isValid: Bool
 }

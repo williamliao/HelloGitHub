@@ -153,8 +153,8 @@ extension EndPoint {
 }
 
 struct LoginEndPoint {
-    static let client_id = "Iv1.6e411d9570d13fa3"
-    static let client_secret = "f11de92814894e871402db35e7347c69a4bb7cd4"
+    static let client_id = ""
+    static let client_secret = ""
     let path: String
     let queryItems: [URLQueryItem]
 }
@@ -180,6 +180,18 @@ extension LoginEndPoint {
                 URLQueryItem(name: "redirect_uri", value: redirectURI),
                 URLQueryItem(name: "code", value: code),
                 URLQueryItem(name: "state", value: codeVerifier),
+            ]
+        )
+    }
+    
+    static func refreshToken(received token: String) -> LoginEndPoint {
+        return LoginEndPoint(
+            path: "/login/oauth/access_token",
+            queryItems: [
+                URLQueryItem(name: "client_id", value: client_id),
+                URLQueryItem(name: "client_secret", value: client_secret),
+                URLQueryItem(name: "grant_type", value: "refresh_token"),
+                URLQueryItem(name: "refresh_token", value: token),
             ]
         )
     }

@@ -40,8 +40,8 @@ class DataLoader {
     typealias JSONTaskCompletionHandler = (Decodable?, NetworkError?) -> Void
     
     var decoder: JSONDecoder
-    
     private let urlSession: URLSession
+    
     private var successCodes: CountableRange<Int> = 200..<299
     private var failureClientCodes: CountableRange<Int> = 400..<499
     private var failureBackendCodes: CountableRange<Int> = 500..<511
@@ -105,7 +105,7 @@ extension DataLoader {
         do {
             return try await withCheckedThrowingContinuation({
                 (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
-                requestToken(endpoint, decode: decode) { result in
+                loadAuthorized(endpoint, decode: decode) { result in
                     continuation.resume(returning: result)
                 }
             })
@@ -193,7 +193,7 @@ extension DataLoader {
         task.resume()
     }
     
-    func requestToken<T: Decodable>(_ endPoint: LoginEndPoint, decode: @escaping (Decodable) -> T?, handler: @escaping (Result<T, NetworkError>) -> Void) {
+    func loadAuthorized<T: Decodable>(_ endPoint: LoginEndPoint, decode: @escaping (Decodable) -> T?, handler: @escaping (Result<T, NetworkError>) -> Void) {
      
         let request = authorizedURLRequest(with: endPoint)
         
@@ -267,7 +267,7 @@ extension DataLoader {
                     let expires_in = Int(dictionary["expires_in"] ?? "0")
                     let refresh_token_expires_in = Int(dictionary["refresh_token_expires_in"] ?? "0")
                     
-                    let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"])
+                    let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"], isValid: true)
                     completion(token, nil)
                     return
                     
@@ -282,7 +282,7 @@ extension DataLoader {
                 
             } else if httpResponse.statusCode == 304 {
                 completion(nil, NetworkError.notModified)
-            }  else {
+            } else {
                 completion(nil, self.handleHTTPResponse(statusCode: httpResponse.statusCode))
             }
         }

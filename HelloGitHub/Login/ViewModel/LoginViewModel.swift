@@ -23,12 +23,16 @@ protocol OAuthClient {
         codeVerifier: String,
         completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
     )
+    
+    func refreshToken(
+        withToken: String,
+        completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
+    )
 }
 
 class LoginViewModel {
     
     var showError: ((_ error:NetworkError) -> Void)?
-    
     private let oauthClient: OAuthClient
     
     init(oauthClient: OAuthClient) {

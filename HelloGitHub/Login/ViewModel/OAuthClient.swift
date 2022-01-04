@@ -84,4 +84,28 @@ class RemoteOAuthClient: OAuthClient {
             }
         }
     }
+    
+    func refreshToken(
+        withToken: String,
+        completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
+    ) {
+        let endPoint = LoginEndPoint.refreshToken(received: withToken)
+        let dataLoader = DataLoader()
+        
+        Task {
+            let result = try await dataLoader.fetchToken(endPoint, decode: { json -> TokenResponse? in
+                guard let feedResult = json as? TokenResponse else { return  nil }
+                return feedResult
+            })
+            
+            switch result {
+                case .success(let token):
+                    completionHandler(token, nil)
+                
+                case .failure(let error):
+                    print("retrieveToken error \(error)")
+                    completionHandler(nil, error)
+            }
+        }
+    }
 }
