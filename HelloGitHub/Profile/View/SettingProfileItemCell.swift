@@ -94,10 +94,10 @@ extension SettingProfileItemCell {
     func addConstraints() {
         NSLayoutConstraint.activate([
            
-            avatarImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            avatarImage.topAnchor.constraint(equalTo: self.topAnchor),
-            avatarImage.heightAnchor.constraint(equalToConstant: 44),
-            avatarImage.widthAnchor.constraint(equalToConstant: 44),
+            avatarImage.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 10),
+            avatarImage.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+            avatarImage.heightAnchor.constraint(equalToConstant: 64),
+            avatarImage.widthAnchor.constraint(equalToConstant: 64),
             
             nameLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             nameLabel.topAnchor.constraint(equalTo: avatarImage.topAnchor),
@@ -107,13 +107,13 @@ extension SettingProfileItemCell {
             loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5),
             loginNameLabel.heightAnchor.constraint(equalToConstant: 16),
             
-            followersLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
+            followersLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 5),
             followersLabel.topAnchor.constraint(equalTo: avatarImage.bottomAnchor, constant: 5),
-            followersLabel.heightAnchor.constraint(equalToConstant: 16),
+            followersLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
             
             followingLabel.leadingAnchor.constraint(equalTo: followersLabel.trailingAnchor, constant: 5),
-            followingLabel.topAnchor.constraint(equalTo: followersLabel.bottomAnchor),
-            followingLabel.heightAnchor.constraint(equalToConstant: 16),
+            followingLabel.topAnchor.constraint(equalTo: followersLabel.topAnchor),
+            followingLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
         ])
     }
     

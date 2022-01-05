@@ -48,13 +48,15 @@ extension SettingView {
             let flowLayout = UICollectionViewFlowLayout()
             collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
             
-            collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SettingProfileItemCell_Id")
+            collectionView.register(SettingProfileItemCell.self, forCellWithReuseIdentifier: SettingProfileItemCell.reuseIdentifier)
             collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SettingAboutItemCell_Id")
             collectionView.register(SettingMainItemCell.self, forCellWithReuseIdentifier: SettingMainItemCell.reuseIdentifier)
         }
         collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self.dataSource
+        collectionView.delegate = self
+        
         self.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: self.topAnchor),
@@ -77,9 +79,19 @@ extension SettingView {
        
         if #available(iOS 14.0, *) {
             
-            let configuredProfileCell = UICollectionView.CellRegistration<UICollectionViewListCell, SettingItem> { (cell, indexPath, itemIdentifier) in
+            let configuredProfileCell = UICollectionView.CellRegistration<SettingProfileItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
                 
-                var contentConfiguration = UIListContentConfiguration.subtitleCell()
+                cell.nameLabel.text = itemIdentifier.title
+                cell.loginNameLabel.text = itemIdentifier.subTitle
+                
+                if let avatarImage = itemIdentifier.image {
+                    cell.avatarImage.image = avatarImage
+                }
+                
+                cell.followersLabel.text = "\(self.viewModel.user.followers) followers"
+                cell.followingLabel.text = "\(self.viewModel.user.following) following"
+                
+               /* var contentConfiguration = UIListContentConfiguration.subtitleCell()
                 
                 contentConfiguration.text = itemIdentifier.title
                 contentConfiguration.secondaryText = itemIdentifier.subTitle
@@ -91,7 +103,7 @@ extension SettingView {
                     contentConfiguration.image = avatarImage
                 }
                 
-                cell.contentConfiguration = contentConfiguration
+                cell.contentConfiguration = contentConfiguration*/
             }
             
             let configuredMainCell = UICollectionView.CellRegistration<SettingMainItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
@@ -149,7 +161,7 @@ extension SettingView {
                 
                 switch section {
                     case .profile:
-                    return collectionView.dequeueReusableCell(withReuseIdentifier: "SettingProfileItemCell_Id", for: indexPath)
+                    return collectionView.dequeueReusableCell(withReuseIdentifier: SettingProfileItemCell.reuseIdentifier, for: indexPath)
                     case .main:
                         return collectionView.dequeueReusableCell(withReuseIdentifier: SettingMainItemCell.reuseIdentifier, for: indexPath)
                     case .about:
@@ -191,3 +203,11 @@ extension SettingView {
         }
     }
 }
+
+extension SettingView: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: UIScreen.main.bounds.width, height: 150)
+    }
+}
+
+extension SettingView: UICollectionViewDelegate {}
