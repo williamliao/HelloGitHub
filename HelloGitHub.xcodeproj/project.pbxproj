@@ -318,8 +318,8 @@
 			children = (
 				C88EE70F2784353B00F09648 /* SettingView.swift */,
 				C88EE711278435B200F09648 /* SettingMainItemCell.swift */,
-				C88EE7152784370200F09648 /* SettingViewController.swift */,
 				C89949BE278538F600B71FDC /* SettingProfileItemCell.swift */,
+				C88EE7152784370200F09648 /* SettingViewController.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";

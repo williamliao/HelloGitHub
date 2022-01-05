@@ -24,6 +24,7 @@ class SettingView: UIView {
     
     enum SectionLayoutKind: Int, CaseIterable, Hashable {
         case profile
+        case repo
         case main
         case about
     }
@@ -31,8 +32,12 @@ class SettingView: UIView {
     var section: SectionLayoutKind = .profile
     
     var settingProfileTexts = [SettingItem]()
-    let settingTexts = [SettingItem(title: "Dark Mode", subTitle: "", image: nil)]
-    let settingAboutTexts = [SettingItem(title: "版本資訊", subTitle: "1.0.0", image: nil), SettingItem(title: "使用條款", subTitle: "", image: nil), SettingItem(title: "隱私權條款", subTitle: "", image: nil)]
+    let settingTexts = [SettingItem(title: "Dark Mode", subTitle: "", image: nil, userInfo: nil)]
+    
+    let settingAboutTexts = [SettingItem(title: "版本資訊", subTitle: "1.0.0", image: nil, userInfo: nil),                                     SettingItem(title: "使用條款", subTitle: "", image: nil, userInfo: nil),
+                             SettingItem(title: "隱私權條款", subTitle: "", image: nil, userInfo: nil)]
+    
+    var settingRepoTexts = [SettingItem]()
     var dataSource: UICollectionViewDiffableDataSource<SectionLayoutKind, SettingItem>! = nil
     var collectionView: UICollectionView! = nil
 
@@ -50,12 +55,12 @@ extension SettingView {
             
             collectionView.register(SettingProfileItemCell.self, forCellWithReuseIdentifier: SettingProfileItemCell.reuseIdentifier)
             collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SettingAboutItemCell_Id")
+            collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "SettingAboutRepoCell_Id")
             collectionView.register(SettingMainItemCell.self, forCellWithReuseIdentifier: SettingMainItemCell.reuseIdentifier)
         }
         collectionView.backgroundColor = .clear
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self.dataSource
-        collectionView.delegate = self
         
         self.addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -69,7 +74,7 @@ extension SettingView {
     @available(iOS 14.0.0, *)
     func configureLayout() -> UICollectionViewLayout {
         let provider = {(_: Int, layoutEnv: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-        let configuration = UICollectionLayoutListConfiguration(appearance: .grouped)
+        let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
             return .list(using: configuration, layoutEnvironment: layoutEnv)
         }
         return UICollectionViewCompositionalLayout(sectionProvider: provider)
@@ -80,35 +85,24 @@ extension SettingView {
         if #available(iOS 14.0, *) {
             
             let configuredProfileCell = UICollectionView.CellRegistration<SettingProfileItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
+                cell.configureBindData(item: .init(itemIdentifier), userInfo: .init(itemIdentifier.userInfo))
+            }
+            
+            let configuredRepoCell = UICollectionView.CellRegistration<UICollectionViewListCell, SettingItem> { (cell, indexPath, itemIdentifier) in
                 
-                cell.nameLabel.text = itemIdentifier.title
-                cell.loginNameLabel.text = itemIdentifier.subTitle
-                
-                if let avatarImage = itemIdentifier.image {
-                    cell.avatarImage.image = avatarImage
-                }
-                
-                cell.followersLabel.text = "\(self.viewModel.user.followers) followers"
-                cell.followingLabel.text = "\(self.viewModel.user.following) following"
-                
-               /* var contentConfiguration = UIListContentConfiguration.subtitleCell()
+                var contentConfiguration = UIListContentConfiguration.valueCell()
                 
                 contentConfiguration.text = itemIdentifier.title
                 contentConfiguration.secondaryText = itemIdentifier.subTitle
                 
                 contentConfiguration.textProperties.color = .label
                 contentConfiguration.secondaryTextProperties.color = .systemGray
-                
-                if let avatarImage = itemIdentifier.image {
-                    contentConfiguration.image = avatarImage
-                }
-                
-                cell.contentConfiguration = contentConfiguration*/
+
+                cell.contentConfiguration = contentConfiguration
             }
             
             let configuredMainCell = UICollectionView.CellRegistration<SettingMainItemCell, SettingItem> { (cell, indexPath, itemIdentifier) in
-                cell.label.text = itemIdentifier.title
-                
+                cell.configureBindData(item: .init(itemIdentifier))
             }
             
             let configuredAboutCell = UICollectionView.CellRegistration<UICollectionViewListCell, SettingItem> { (cell, indexPath, itemIdentifier) in
@@ -142,6 +136,8 @@ extension SettingView {
                 switch section {
                     case .profile:
                         return collectionView.dequeueConfiguredReusableCell(using: configuredProfileCell, for: indexPath, item: identifier)
+                    case .repo:
+                    return collectionView.dequeueConfiguredReusableCell(using: configuredRepoCell, for: indexPath, item: identifier)
                     case .main:
                         return collectionView.dequeueConfiguredReusableCell(using: configuredMainCell, for: indexPath, item: identifier)
                     case .about:
@@ -161,7 +157,9 @@ extension SettingView {
                 
                 switch section {
                     case .profile:
-                    return collectionView.dequeueReusableCell(withReuseIdentifier: SettingProfileItemCell.reuseIdentifier, for: indexPath)
+                        return collectionView.dequeueReusableCell(withReuseIdentifier: SettingProfileItemCell.reuseIdentifier, for: indexPath)
+                    case .repo:
+                        return collectionView.dequeueReusableCell(withReuseIdentifier: "SettingAboutRepoCell_Id", for: indexPath)
                     case .main:
                         return collectionView.dequeueReusableCell(withReuseIdentifier: SettingMainItemCell.reuseIdentifier, for: indexPath)
                     case .about:
@@ -177,15 +175,16 @@ extension SettingView {
         snapshot.appendSections(SectionLayoutKind.allCases)
         dataSource.apply(snapshot, animatingDifferences: false)
         
-        let name = self.viewModel.user.name ?? ""
-        let bio = self.viewModel.user.bio ?? "bio"
-        let image = self.viewModel.avatarImage ?? nil
-        settingProfileTexts.append(SettingItem(title: name, subTitle: bio, image: image))
+        updateModelDataBeforeLoad()
         
         if #available(iOS 14.0, *) {
             var profileSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
             profileSnapshot.append(settingProfileTexts)
             dataSource.apply(profileSnapshot, to: .profile, animatingDifferences: false)
+            
+            var repoSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
+            repoSnapshot.append(settingRepoTexts)
+            dataSource.apply(repoSnapshot, to: .repo, animatingDifferences: false)
             
             var mainSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
             mainSnapshot.append(settingTexts)
@@ -197,17 +196,20 @@ extension SettingView {
         } else {
             // Fallback on earlier versions
             snapshot.appendItems(settingProfileTexts, toSection: .profile)
+            snapshot.appendItems(settingRepoTexts, toSection: .repo)
             snapshot.appendItems(settingTexts, toSection: .main)
             snapshot.appendItems(settingAboutTexts, toSection: .about)
             dataSource.apply(snapshot, animatingDifferences: false, completion: nil)
         }
     }
-}
-
-extension SettingView: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width, height: 150)
+    
+    func updateModelDataBeforeLoad() {
+        let name = self.viewModel.user.name ?? ""
+        let bio = self.viewModel.user.bio ?? "bio"
+        let image = self.viewModel.avatarImage ?? nil
+        
+        settingProfileTexts.append(SettingItem(title: name, subTitle: bio, image: image, userInfo: UserInfo(followers: "\(self.viewModel.user.followers) followers", following: "\(self.viewModel.user.following) following")))
+        
+        settingRepoTexts.append(SettingItem(title: "Repositories", subTitle:"\(self.viewModel.user.public_repos)" , image: nil, userInfo: nil))
     }
 }
-
-extension SettingView: UICollectionViewDelegate {}

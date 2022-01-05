@@ -52,9 +52,13 @@ extension SettingMainItemCell {
         ])
     }
     
+    func configureBindData(item: Bindable<SettingItem>) {
+        item.bind(\.title, to: label, \.text)
+    }
+    
     private func adaptToUserInterfaceStyle() {
         
-        let textColor: UIColor = UITraitCollection.current.userInterfaceStyle == .dark ? .white : .black
+        let textColor: UIColor = .systemGray
         let text = UITraitCollection.current.userInterfaceStyle == .dark ? "dark" : "light"
         
         button.setTitle(text, for: .normal)

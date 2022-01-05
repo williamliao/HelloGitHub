@@ -7,15 +7,48 @@
 
 import UIKit
 
-struct SettingItem: Hashable {
+struct SettingItem {
     let title: String
     let subTitle: String
     let image: UIImage?
-    private let id = UUID()
+    var userInfo: UserInfo?
+    private var id = UUID()
 
-    init(title: String, subTitle: String, image: UIImage?) {
+    init(title: String, subTitle: String, image: UIImage?, userInfo: UserInfo?) {
         self.title = title
         self.subTitle = subTitle
         self.image = image
+        self.userInfo = userInfo
+    }
+}
+
+extension SettingItem: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: SettingItem, rhs: SettingItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+struct UserInfo: Codable {
+    private var id = UUID()
+    let followers: String
+    let following: String
+    
+    init(followers: String, following: String) {
+        self.followers = followers
+        self.following = following
+    }
+}
+
+extension UserInfo: Hashable, Equatable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: UserInfo, rhs: UserInfo) -> Bool {
+        return lhs.id == rhs.id
     }
 }
