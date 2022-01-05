@@ -33,6 +33,7 @@ enum NetworkError: Error {
     case invalidMetadata
     case invalidToken
     case invalidURLRequest
+    case invalidURL
     case unKnown
 }
 
@@ -80,6 +81,8 @@ extension DataLoader {
             return Result.failure(NetworkError.unAuthorized)
         } catch NetworkError.timeOut  {
             return Result.failure(NetworkError.timeOut)
+        } catch NetworkError.invalidToken  {
+            return Result.failure(NetworkError.invalidToken)
         } catch {
             print("fetchDataWithConcurrency error \(error)")
             return Result.failure(NetworkError.unKnown)
@@ -100,6 +103,8 @@ extension DataLoader {
             return Result.failure(NetworkError.unAuthorized)
         } catch NetworkError.timeOut  {
             return Result.failure(NetworkError.timeOut)
+        } catch NetworkError.invalidToken  {
+            return Result.failure(NetworkError.invalidToken)
         } catch {
             print("fetchDataWithConcurrency error \(error)")
             return Result.failure(NetworkError.unKnown)
@@ -204,6 +209,10 @@ extension DataLoader {
             } else {
                 let error = self.handleHTTPResponse(statusCode: httpResponse.statusCode)
                 print("error \(error)")
+                
+                let token = TokenResponse(access_token: "", expires_in: 0, refresh_token: "", refresh_token_expires_in: 0, scope: "", token_type: "", isValid: false)
+                
+                getData?(token)
             }
         }
         task.resume()
@@ -310,13 +319,9 @@ extension DataLoader {
     }
     
     @available(iOS 15.0.0, *)
-    func loadAuthorized<T: Decodable>(_ url: LoginEndPoint, allowRetry: Bool = true) async throws -> T {
+    func loadAuthorized<T: Decodable>(_ url: URL, allowRetry: Bool = true, decode: @escaping (Decodable) -> T?) async throws -> T {
         
-        guard let Url = url.url else {
-            throw NetworkError.invalidURLRequest
-        }
-        
-        let request = try await authorizedRequest(from: Url)
+        let request = try await authorizedRequest(from: url)
         
         let (data, urlResponse) = try await URLSession.shared.data(for: request)
     
@@ -324,7 +329,10 @@ extension DataLoader {
         if let httpResponse = urlResponse as? HTTPURLResponse, httpResponse.statusCode == 401 {
             if allowRetry {
                 _ = try await authManager.refreshToken()
-                return try await loadAuthorized(url, allowRetry: false)
+                return try await loadAuthorized(url, allowRetry: false, decode: { json -> T? in
+                    guard let feedResult = json as? T else { return  nil }
+                    return feedResult
+                })
             }
     
             throw NetworkError.invalidToken
@@ -334,6 +342,87 @@ extension DataLoader {
         let response = try decoder.decode(T.self, from: data)
     
         return response
+    }
+    
+    func loadAuthorizedWithDecodable<T: Decodable>(_ url: URL, allowRetry: Bool = true, decode: @escaping (Decodable) -> T?) async throws -> T {
+        let request = try await authorizedRequest(from: url)
+        var returnData: T!
+        var returnError: NetworkError!
+        var getData: ((T) -> Void)?
+        var getError: ((NetworkError) -> Void)?
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        let task = urlSession.dataTask(with: request) { data, response, error in
+            
+            guard error == nil else {
+                if let error = error {
+                    print("error \(error)")
+                    return
+                }
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("error \(NetworkError.noHTTPResponse)")
+                return
+            }
+            
+            if self.successCodes.contains(httpResponse.statusCode) {
+                
+                guard let data = data else {
+                    print("error \(NetworkError.badData)")
+                    return
+                }
+                
+                do {
+                    let decodable = try self.decoder.decode(T.self, from: data)
+                    getData?(decodable)
+                    
+                } catch {
+                    print("error \(NetworkError.network(error))")
+                }
+                
+                
+            } else if httpResponse.statusCode == 304 {
+                print("error \(NetworkError.notModified)")
+                getError?(NetworkError.notModified)
+            } else if httpResponse.statusCode == 401 {
+  
+                Task {
+                    do {
+                        let _ = try await self.authManager.refreshToken()
+                    } catch  {
+                        
+                    }
+                }
+                
+                
+                getError?(NetworkError.invalidToken)
+                
+            } else {
+                let error = self.handleHTTPResponse(statusCode: httpResponse.statusCode)
+                print("error \(error)")
+                getError?(error)
+            }
+        }
+        task.resume()
+        
+        getData = { decodable in
+            returnData = decodable
+            semaphore.signal()
+        }
+        
+        getError = { error in
+            returnError = error
+        }
+        
+        if let returnError = returnError {
+            throw returnError
+        }
+        
+        let _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        
+        return returnData
     }
     
     @available(iOS 13.0.0, *)
@@ -383,6 +472,9 @@ extension DataLoader {
                     let refresh_token_expires_in = Double(dictionary["refresh_token_expires_in"] ?? "0")
                     
                     let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"], isValid: true)
+                    
+                    DataLoader.token = token
+                    
                     completion(token, nil)
                     return
                     
@@ -399,14 +491,7 @@ extension DataLoader {
                 completion(nil, NetworkError.notModified)
             } else if httpResponse.statusCode == 401 {
   
-                Task {
-                    do {
-                        let _ = try await self.authManager.refreshToken()
-                        completion(nil, NetworkError.invalidToken)
-                    } catch  {
-
-                    }
-                }
+                completion(nil, NetworkError.invalidToken)
                 
             } else {
                 completion(nil, self.handleHTTPResponse(statusCode: httpResponse.statusCode))
@@ -493,9 +578,7 @@ extension DataLoader {
     
     func searchURLRequest(with endPoint: URL) -> URLRequest? {
         var request = URLRequest(url: endPoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
-        if let accessToken = DataLoader.accessToken {
-            request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
-        }
+        request.setValue("Bearer \(DataLoader.accessToken ?? "")", forHTTPHeaderField: "Authorization")
         return request
     }
     

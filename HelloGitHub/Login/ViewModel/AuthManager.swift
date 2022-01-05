@@ -13,7 +13,6 @@ actor AuthManager {
         case missingToken
     }
 
-    private var currentToken: TokenResponse?
     private var refreshTask: Task<TokenResponse, Error>?
 
     func validToken() async throws -> TokenResponse {
@@ -21,7 +20,7 @@ actor AuthManager {
             return try await handle.value
         }
     
-        guard let token = currentToken else {
+        guard let token = DataLoader.token else {
             throw AuthError.missingToken
         }
     
@@ -43,12 +42,12 @@ actor AuthManager {
             // Normally you'd make a network call here. Could look like this:
             let dataLoader = DataLoader()
             let token = try await dataLoader.refreshToken(withRefreshToken: DataLoader.refreshToken ?? "")
-            currentToken = token
             
             DataLoader.accessToken = token.access_token
             DataLoader.refreshToken = token.refresh_token
             DataLoader.expires = token.expires_in
             DataLoader.refreshExpires = token.refresh_token_expires_in
+            DataLoader.token = token
             
             return token
     

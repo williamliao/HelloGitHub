@@ -14,6 +14,7 @@ extension DataLoader {
     private static let usernameKey = "username"
     private static let expiresKey = "expires"
     private static let refreshExpiresKey = "refreshExpires"
+    private static let tokenKey = "token"
 
     // MARK: Properties
     static var accessToken: String? {
@@ -58,6 +59,19 @@ extension DataLoader {
         }
         set {
           UserDefaults.standard.setValue(newValue, forKey: refreshExpiresKey)
+        }
+    }
+    
+    static var token: TokenResponse? {
+        get {
+            try? UserDefaults.standard.getObject(forKey: tokenKey, castTo: TokenResponse.self)
+        }
+        set {
+            do {
+                try UserDefaults.standard.setObject(newValue, forKey: tokenKey)
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 }

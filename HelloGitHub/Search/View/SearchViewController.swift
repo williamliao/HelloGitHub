@@ -15,8 +15,19 @@ class SearchViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let sessionConfiguration = URLSessionConfiguration.default
+        
+        if let token = DataLoader.accessToken {
+            sessionConfiguration.httpAdditionalHeaders = [
+                "Authorization": "Bearer \(token)"
+            ]
+        }
+        sessionConfiguration.waitsForConnectivity = true
 
-        viewModel = SearchViewModel(dataLoader: DataLoader())
+        let session = URLSession(configuration: sessionConfiguration)
+        
+        viewModel = SearchViewModel(dataLoader: DataLoader(session: session))
         viewModel.showError = { [weak self] error in
             self?.showErrorToast(error: error)
         }

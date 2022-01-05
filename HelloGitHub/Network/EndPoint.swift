@@ -143,7 +143,7 @@ extension EndPoint {
     static func fetchUsers() -> EndPoint {
         return EndPoint(
             path: "/user",
-            queryItems: []
+            queryItems: [URLQueryItem]()
         )
     }
 }

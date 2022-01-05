@@ -75,6 +75,72 @@ extension SearchViewModel {
         }
     }
     
+    @available(iOS 15.0.0, *)
+    func searchRepositoriesWithTokenInvaild(page: Int) async  {
+        
+        dataLoader.decoder.dateDecodingStrategy = .iso8601
+        
+        do {
+            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText, numberOfPage: page), decode: { json -> Repositories? in
+                guard let feedResult = json as? Repositories else { return  nil }
+                return feedResult
+            })
+            
+            isFetching = false
+            switch result {
+                case .success(let repo):
+                
+                    if page == 1 {
+                        if repo.incomplete_results {
+                            showError?(NetworkError.queryTimeLimit)
+                            return
+                        }
+                        
+                        self.repo = repo
+                        downloadAndShowTask = nil
+                    } else {
+                        handleSearchRepositoriesNextPage(newRepo: repo)
+                    }
+            
+                case .failure(let error):
+                    downloadAndShowTask = nil
+                
+                    switch error {
+                        case .invalidToken:
+                            do {
+                                let url = EndPoint.search(matching: searchText, numberOfPage: page)
+                                let result = try await dataLoader.loadAuthorized(url.url!, allowRetry: false, decode: { json -> Repositories? in
+                                    guard let feedResult = json as? Repositories else { return  nil }
+                                    return feedResult
+                                })
+                                
+                                if page == 1 {
+                                    if repo.incomplete_results {
+                                        showError?(NetworkError.queryTimeLimit)
+                                        return
+                                    }
+                                    
+                                    self.repo = result
+                                    downloadAndShowTask = nil
+                                } else {
+                                    handleSearchRepositoriesNextPage(newRepo: result)
+                                }
+                               
+                            } catch  {
+                                
+                            }
+                                            
+                        default:
+                            showError?(error)
+                    }
+            }
+            
+        }  catch  {
+            print("searchRepositories error \(error)")
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
+        }
+    }
+    
     func searchRepositories(page: Int) async {
 
         dataLoader.decoder.dateDecodingStrategy = .iso8601
@@ -102,7 +168,10 @@ extension SearchViewModel {
                     }
             
                 case .failure(let error):
-                    showError?(error)
+                    
+                    downloadAndShowTask = nil
+                    await doWhenInvalidToken(endPoint: EndPoint.search(matching: searchText, numberOfPage: page), error: error, page: page)
+                
             }
             
         }  catch  {
@@ -110,6 +179,8 @@ extension SearchViewModel {
             showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
     }
+    
+    
 }
 
 // MARK: - Search Issues
@@ -158,7 +229,8 @@ extension SearchViewModel {
                     }
                 
                 case .failure(let error):
-                    showError?(error)
+                    downloadAndShowTask = nil
+                    await doWhenInvalidToken(endPoint: EndPoint.searchIssues(matching: searchText, numberOfPage: page), error: error, page: page)
             }
             
         } catch  {
@@ -177,11 +249,13 @@ extension SearchViewModel {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
             //print("Will fetchUser")
-            await fetchUser(page: currentPage)
+            async let _ = await fetchUser(page: currentPage)
             //print("Has fetchUser")
             //print("Will fetchUserInfo metadata")
-            await fetchUserInfo()
+            async let _ = await fetchUserInfo()
             //print("Has fetchUserInfo metadata")
+            
+            downloadAndShowTask = nil
         }
     }
     
@@ -201,26 +275,38 @@ extension SearchViewModel {
                 return feedResult
             })
             
-            if page == 1 {
-                self.users = try result.get()
-                downloadAndShowTask = nil
-            } else {
-                let newUsers = try result.get()
+            switch result {
+                case .success(let user):
                 
-                handleSearchUsersNextPage(newUsers: newUsers)
+                if page == 1 {
+                    self.users = user
+                    downloadAndShowTask = nil
+                } else {
+                    handleSearchUsersNextPage(newUsers: user)
+                }
+                
+                case .failure(let error):
+                    downloadAndShowTask = nil
+                    await doWhenInvalidToken(endPoint: EndPoint.searchUsers(matching: searchText, numberOfPage: page), error: error, page: page)
+                    
             }
             
         } catch  {
             showError?(error as? NetworkError ?? NetworkError.unKnown)
+            downloadAndShowTask = nil
         }
     }
     
     func fetchUserInfo() async {
         
+        guard let user = self.users else {
+            return
+        }
+        
         self.usersInfo = [UsersInfo]()
         var urls = [URL]()
         
-        urls = self.users.items.compactMap { item in
+        urls = user.items.compactMap { item in
             let path = item.url!
             return URL(string: path)
         }
@@ -234,11 +320,20 @@ extension SearchViewModel {
                 }
                 
                 isFetching = false
-                downloadAndShowTask = nil
+                
                 
             } catch  {
                 print("fetchUserInfo \(error)")
-                showError?(error as? NetworkError ?? NetworkError.unKnown)
+                downloadAndShowTask = nil
+                
+                let networkError = error as? NetworkError ?? NetworkError.unKnown
+                
+                switch networkError {
+                    case .invalidToken:
+                        showError?(NetworkError.invalidToken)
+                    default:
+                        showError?(error as? NetworkError ?? NetworkError.unKnown)
+                }
             }
             
         } else {
@@ -277,8 +372,15 @@ extension SearchViewModel {
                     downloadAndShowTask = nil
                 }
             } catch  {
-                print("Failed to load UsersInfo: \(error)")
-                showError?(error as? NetworkError ?? NetworkError.unKnown)
+                downloadAndShowTask = nil
+                let networkError = error as? NetworkError ?? NetworkError.unKnown
+                
+                switch networkError {
+                    case .invalidToken:
+                        showError?(NetworkError.invalidToken)
+                    default:
+                        showError?(error as? NetworkError ?? NetworkError.unKnown)
+                }
             }
         }
     }
@@ -293,10 +395,10 @@ extension SearchViewModel {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
             //print("Will fetchUser")
-            await fetchUser(page: currentPage)
+            async let _ = await fetchUser(page: currentPage)
             //print("Has fetchUser")
             //print("Will fetchUserInfo metadata")
-            await fetchUserInfo()
+            async let _ = await fetchUserInfo()
             //print("Has fetchUserInfo metadata")
         }
     }
@@ -305,7 +407,7 @@ extension SearchViewModel {
 // MARK: - Private
 extension SearchViewModel {
     
-    func avoidMulitCall() {
+    private func avoidMulitCall() {
         if isFetching {
             return
         }
@@ -313,7 +415,7 @@ extension SearchViewModel {
         isFetching = true
     }
     
-    func searchByType() {
+    private func searchByType() {
         switch searchType {
             case .repositories:
                 searchRepositoriesTask()
@@ -324,7 +426,7 @@ extension SearchViewModel {
         }
     }
     
-    func handleSearchRepositoriesNextPage(newRepo: Repositories) {
+    private func handleSearchRepositoriesNextPage(newRepo: Repositories) {
         guard var totalRepo = self.repo  else {
             return
         }
@@ -345,7 +447,7 @@ extension SearchViewModel {
         downloadAndShowTask = nil
     }
     
-    func handleSearchIssuesNextPage(newIssues: Issues) {
+    private func handleSearchIssuesNextPage(newIssues: Issues) {
         guard var totalIssues = self.issues  else {
             return
         }
@@ -366,7 +468,7 @@ extension SearchViewModel {
         downloadAndShowTask = nil
     }
     
-    func handleSearchUsersNextPage(newUsers: Users) {
+    private func handleSearchUsersNextPage(newUsers: Users) {
         guard var totalUsers = self.users  else {
             return
         }
@@ -382,6 +484,42 @@ extension SearchViewModel {
         
         if self.users.items.count == newUsers.total_count {
             self.canFetchMore = false
+        }
+    }
+    
+    private func doWhenInvalidToken(endPoint: EndPoint, error: NetworkError, page: Int) async {
+        switch error {
+            case .invalidToken:
+                do {
+                    
+                    guard let url = endPoint.url else {
+                        showError?(NetworkError.invalidURL)
+                        return
+                    }
+                    
+                    let result = try await dataLoader.loadAuthorizedWithDecodable(url, allowRetry: false, decode: { json -> Repositories? in
+                        guard let feedResult = json as? Repositories else { return  nil }
+                        return feedResult
+                    })
+                    
+                    if page == 1 {
+                        if repo.incomplete_results {
+                            showError?(NetworkError.queryTimeLimit)
+                            return
+                        }
+                        
+                        self.repo = result
+                        downloadAndShowTask = nil
+                    } else {
+                        handleSearchRepositoriesNextPage(newRepo: result)
+                    }
+                   
+                } catch  {
+                    print("doWhenInvalidToken error \(error)")
+                }
+                                
+            default:
+                showError?(error)
         }
     }
 }

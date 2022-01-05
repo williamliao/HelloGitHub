@@ -49,6 +49,7 @@ extension SettingViewModel {
                     self.user = user
                     
                 case .failure(let error):
+                    print(error)
                     showError?(error)
             }
             
