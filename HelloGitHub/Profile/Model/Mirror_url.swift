@@ -6,3 +6,6 @@
 //
 
 import Foundation
+
+struct Mirror_url: Codable {
+}
