@@ -203,12 +203,18 @@ extension SettingView {
     }
     
     func applyInitialSnapshots() {
-        // initial data
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.updateModelDataBeforeLoad()
+            self?.updateSnapShot()
+        }
+    }
+    
+    func updateSnapShot() {
+        
         var snapshot = NSDiffableDataSourceSnapshot<SectionLayoutKind, SettingItem>()
         snapshot.appendSections(SectionLayoutKind.allCases)
         dataSource.apply(snapshot, animatingDifferences: false)
-        
-        updateModelDataBeforeLoad()
         
         if #available(iOS 14.0, *) {
             var profileSnapshot = NSDiffableDataSourceSectionSnapshot<SettingItem>()
