@@ -87,12 +87,13 @@ class RemoteOAuthClient: OAuthClient {
     }
     
     func refreshToken<T: Decodable>(
+        session: URLSession,
         url: URL,
         decodingType: T.Type,
         completionHandler: @escaping (Decodable?, NetworkError?) -> Void
     ) {
 
-        let dataLoader = DataLoader()
+        let dataLoader = DataLoader(session: session)
         
         Task {
             do {

@@ -25,6 +25,7 @@ protocol OAuthClient {
     )
     
     func refreshToken<T: Decodable>(
+        session: URLSession,
         url: URL,
         decodingType: T.Type,
         completionHandler: @escaping (Decodable?, NetworkError?) -> Void
