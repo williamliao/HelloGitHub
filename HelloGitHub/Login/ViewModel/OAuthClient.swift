@@ -80,19 +80,8 @@ class RemoteOAuthClient: OAuthClient {
                 
                 case .failure(let error):
                     
-                switch error {
-                    case .invalidToken:
-                        let _ = try await dataLoader.authManager.refreshToken()
-                        let result = try await dataLoader.fetchToken(endPoint, decode: { json -> TokenResponse? in
-                            guard let feedResult = json as? TokenResponse else { return  nil }
-                            return feedResult
-                        })
-                        
-                        completionHandler(try result.get(), nil)
-                    default:
-                        print("retrieveToken error \(error)")
-                        completionHandler(nil, error)
-                }
+                    print("retrieveToken error \(error)")
+                    completionHandler(nil, error)
             }
         }
     }

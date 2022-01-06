@@ -492,41 +492,4 @@ extension SearchViewModel {
             self.canFetchMore = false
         }
     }
-    
-    private func doWhenInvalidToken(endPoint: EndPoint, error: NetworkError, page: Int) async {
-        switch error {
-            case .invalidToken:
-                do {
-                    
-                    guard let url = endPoint.url else {
-                        showError?(NetworkError.invalidURL)
-                        return
-                    }
-                    
-                    async let _ = try await dataLoader.authManager.refreshToken()
-                    async let result = try await dataLoader.fetchWithContinuation(url, decode: { json -> Repositories? in
-                        guard let feedResult = json as? Repositories else { return  nil }
-                        return feedResult
-                    })
-                    
-                    if page == 1 {
-                        if repo.incomplete_results {
-                            showError?(NetworkError.queryTimeLimit)
-                            return
-                        }
-                        
-                        self.repo = try await result
-                        downloadAndShowTask = nil
-                    } else {
-                        handleSearchRepositoriesNextPage(newRepo: try await result)
-                    }
-                    
-                } catch  {
-                    print("doWhenInvalidToken error \(error)")
-                }
-                                
-            default:
-                showError?(error)
-        }
-    }
 }
