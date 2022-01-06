@@ -53,6 +53,16 @@ class DataLoader {
         case login
         case search
     }
+    
+    static let defaultHeaders = [
+        "accept": "application/vnd.github.v3+json",
+    ]
+    
+    internal static func buildHeaders(key: String, value: String) -> [String: String] {
+        var headers = defaultHeaders
+        headers[key] = value
+        return headers
+    }
 
     init(session: URLSession = .shared, decoder: JSONDecoder = .init()
          , oauthClient: OAuthClient = RemoteOAuthClient()
@@ -414,7 +424,7 @@ extension DataLoader {
                     
                     Task {
                         async let _ = try await self.authManager.refreshToken()
-                        async let _ = self.oauthClient.refreshToken(url: url, decodingType: T.self) { result, error in
+                        async let _ = self.oauthClient.refreshToken(session: self.urlSession, url: url, decodingType: T.self) { result, error in
                             handler(.success(result as? T))
                         }
                     }
@@ -626,14 +636,20 @@ extension DataLoader {
     
     func searchURLRequest(with endPoint: URL) -> URLRequest? {
         var request = URLRequest(url: endPoint, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
-        request.setValue("Bearer \(DataLoader.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        let headers = DataLoader.buildHeaders(key: "Authorization", value: "Bearer \(DataLoader.accessToken ?? "")")
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         return request
     }
     
     private func authorizedRequest(from url: URL) async throws -> URLRequest {
         var urlRequest = URLRequest(url: url)
         let token = try await authManager.validToken()
-        urlRequest.setValue("Bearer \(token.access_token ?? "")", forHTTPHeaderField: "Authorization")
+        let headers = DataLoader.buildHeaders(key: "Authorization", value: "Bearer \(token)")
+        for (key, value) in headers {
+            urlRequest.setValue(value, forHTTPHeaderField: key)
+        }
         return urlRequest
     }
     

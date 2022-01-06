@@ -43,8 +43,6 @@ enum SearchOrder: String {
 }
 
 struct EndPoint {
-    static let client_id = ""
-    static let client_secret = ""
     let path: String
     let queryItems: [URLQueryItem]
 }
@@ -58,7 +56,6 @@ extension EndPoint {
         return EndPoint(
             path: "/search/repositories",
             queryItems: [
-                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
                 URLQueryItem(name: "sort", value: sorting.rawValue),
                 URLQueryItem(name: "order", value: ordering.rawValue),
@@ -76,7 +73,6 @@ extension EndPoint {
         return EndPoint(
             path: "/search/code",
             queryItems: [
-                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
                 URLQueryItem(name: "sort", value: sorting.rawValue),
                 URLQueryItem(name: "order", value: ordering.rawValue),
@@ -94,7 +90,6 @@ extension EndPoint {
         return EndPoint(
             path: "/search/commits",
             queryItems: [
-                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
                 URLQueryItem(name: "sort", value: sorting.rawValue),
                 URLQueryItem(name: "order", value: ordering.rawValue),
@@ -112,7 +107,6 @@ extension EndPoint {
         return EndPoint(
             path: "/search/issues",
             queryItems: [
-                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
                 URLQueryItem(name: "sort", value: sorting.rawValue),
                 URLQueryItem(name: "order", value: ordering.rawValue),
@@ -130,7 +124,6 @@ extension EndPoint {
         return EndPoint(
             path: "/search/users",
             queryItems: [
-                URLQueryItem(name: "accept", value: "application/vnd.github.v3+json"),
                 URLQueryItem(name: "q", value: query),
                 URLQueryItem(name: "sort", value: sorting.rawValue),
                 URLQueryItem(name: "order", value: ordering.rawValue),

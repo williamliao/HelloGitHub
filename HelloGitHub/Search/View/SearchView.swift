@@ -137,19 +137,19 @@ extension SearchView {
     @available(iOS 13.0, *)
     func applyInitialSnapshots() {
         
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.main.async { [self] in
             
-            guard let searchType = self?.viewModel.searchType else {
-                return
-            }
+//            guard let searchType = viewModel.searchType else {
+//                return
+//            }
             
-            switch searchType {
+            switch viewModel.searchType {
                 case .repositories:
-                    self?.configureRepo()
+                    configureRepo()
                 case .issues, .PRs:
-                    self?.configureIssues()
+                    configureIssues()
                 case .people, .organizations:
-                    self?.configureUser()
+                    configureUser()
             }
         }
     }
