@@ -44,6 +44,8 @@
 		C88EE718278448FD00F09648 /* SettingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88EE717278448FD00F09648 /* SettingItem.swift */; };
 		C89949BD27852F9500B71FDC /* ObjectSavable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89949BC27852F9500B71FDC /* ObjectSavable.swift */; };
 		C89949BF278538F600B71FDC /* SettingProfileItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89949BE278538F600B71FDC /* SettingProfileItemCell.swift */; };
+		C89949C327867F2D00B71FDC /* UIView+Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89949C227867F2D00B71FDC /* UIView+Window.swift */; };
+		C89949C52786815D00B71FDC /* UserDefaults+UtilityTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89949C42786815D00B71FDC /* UserDefaults+UtilityTool.swift */; };
 		C8B8254A277AF68600235990 /* SearchType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B82549277AF68600235990 /* SearchType.swift */; };
 		C8B8254C277AF90B00235990 /* Commits.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254B277AF90B00235990 /* Commits.swift */; };
 		C8B8254E277B190E00235990 /* Issues.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B8254D277B190E00235990 /* Issues.swift */; };
@@ -108,6 +110,8 @@
 		C88EE717278448FD00F09648 /* SettingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingItem.swift; sourceTree = "<group>"; };
 		C89949BC27852F9500B71FDC /* ObjectSavable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectSavable.swift; sourceTree = "<group>"; };
 		C89949BE278538F600B71FDC /* SettingProfileItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingProfileItemCell.swift; sourceTree = "<group>"; };
+		C89949C227867F2D00B71FDC /* UIView+Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Window.swift"; sourceTree = "<group>"; };
+		C89949C42786815D00B71FDC /* UserDefaults+UtilityTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+UtilityTool.swift"; sourceTree = "<group>"; };
 		C8B82549277AF68600235990 /* SearchType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchType.swift; sourceTree = "<group>"; };
 		C8B8254B277AF90B00235990 /* Commits.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commits.swift; sourceTree = "<group>"; };
 		C8B8254D277B190E00235990 /* Issues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issues.swift; sourceTree = "<group>"; };
@@ -253,6 +257,8 @@
 				C889D819277DB47500DD72EB /* String.swift */,
 				C88EE6FB27829F5700F09648 /* windows.swift */,
 				C89949BC27852F9500B71FDC /* ObjectSavable.swift */,
+				C89949C227867F2D00B71FDC /* UIView+Window.swift */,
+				C89949C42786815D00B71FDC /* UserDefaults+UtilityTool.swift */,
 			);
 			path = Share;
 			sourceTree = "<group>";
@@ -464,6 +470,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C88EE6F82782926800F09648 /* LoginViewController.swift in Sources */,
+				C89949C52786815D00B71FDC /* UserDefaults+UtilityTool.swift in Sources */,
 				C88EE7002782CAA500F09648 /* Token.swift in Sources */,
 				C8B8254C277AF90B00235990 /* Commits.swift in Sources */,
 				C88EE6FA2782929300F09648 /* LoginViewModel.swift in Sources */,
@@ -474,6 +481,7 @@
 				C88EE6F127828D3900F09648 /* UserAccount.swift in Sources */,
 				C89949BF278538F600B71FDC /* SettingProfileItemCell.swift in Sources */,
 				C889D818277D902600DD72EB /* RemoteDataAsyncSequence.swift in Sources */,
+				C89949C327867F2D00B71FDC /* UIView+Window.swift in Sources */,
 				C88EE70A2783F54D00F09648 /* AuthManager.swift in Sources */,
 				C81079DD2779AE4500BBC01B /* Repositories.swift in Sources */,
 				C89949BD27852F9500B71FDC /* ObjectSavable.swift in Sources */,

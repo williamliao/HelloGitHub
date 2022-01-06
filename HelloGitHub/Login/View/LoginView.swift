@@ -47,27 +47,24 @@ class LoginView: UIView {
     
     @objc private func onTapLogin() {
         
-        guard let windows = self.window else {
+        let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let tab = mainStoryboard.instantiateViewController(withIdentifier: "TabBarCtrl") as? UITabBarController
+        guard let tab = tab, let window = self.getCurrentWindow() else {
             return
         }
         
-        viewModel.authorize(in: windows) { token in
+        viewModel.authorize(in: window) { token in
             
             DataLoader.accessToken = token.access_token
             DataLoader.refreshToken = token.refresh_token
             DataLoader.expires = token.expires_in
             DataLoader.refreshExpires = token.refresh_token_expires_in
             
-            //GoToSearchView
             DispatchQueue.main.async {
-                let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                let tab = mainStoryboard.instantiateViewController(withIdentifier: "TabBarCtrl") as? UITabBarController
                 
-                guard let tab = tab else {
-                    return
-                }
-                UIApplication.shared.windows.first?.rootViewController = tab
-                UIApplication.shared.windows.first?.makeKeyAndVisible()
+                window.rootViewController = tab
+                window.makeKeyAndVisible()
+                self.setRootViewController(window: window, options: [.transitionFlipFromLeft])
             }
         }
     }

@@ -79,7 +79,7 @@
         <!--Navigation Controller-->
         <scene sceneID="fna-mW-33P">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="PMA-x7-NcC" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="LoginNav" automaticallyAdjustsScrollViewInsets="NO" id="PMA-x7-NcC" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="m0B-6D-sAR">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
@@ -119,6 +119,7 @@
                 <tabBarController storyboardIdentifier="TabBarCtrl" automaticallyAdjustsScrollViewInsets="NO" id="dLc-f8-bNr" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="1m7-yJ-K8I">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
