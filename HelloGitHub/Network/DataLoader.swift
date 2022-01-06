@@ -334,6 +334,8 @@ extension DataLoader {
                     return feedResult
                 })
             }
+            
+            print("httpResponse.statusCode \(httpResponse.statusCode)")
     
             throw NetworkError.invalidToken
         }

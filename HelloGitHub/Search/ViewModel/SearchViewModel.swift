@@ -71,7 +71,11 @@ extension SearchViewModel {
         downloadAndShowTask = Task.init(priority: .background) {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
-            await searchRepositories(page: currentPage)
+            if #available(iOS 15.0.0, *) {
+                await searchRepositoriesWithTokenInvaild(page: currentPage)
+            } else {
+                // Fallback on earlier versions
+            }
         }
     }
     
