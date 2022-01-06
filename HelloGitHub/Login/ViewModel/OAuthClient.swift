@@ -79,32 +79,43 @@ class RemoteOAuthClient: OAuthClient {
                     completionHandler(token, nil)
                 
                 case .failure(let error):
-                    print("retrieveToken error \(error)")
-                    completionHandler(nil, error)
+                    
+                switch error {
+                    case .invalidToken:
+                        let _ = try await dataLoader.authManager.refreshToken()
+                        let result = try await dataLoader.fetchToken(endPoint, decode: { json -> TokenResponse? in
+                            guard let feedResult = json as? TokenResponse else { return  nil }
+                            return feedResult
+                        })
+                        
+                        completionHandler(try result.get(), nil)
+                    default:
+                        print("retrieveToken error \(error)")
+                        completionHandler(nil, error)
+                }
             }
         }
     }
     
-    func refreshToken(
-        withToken: String,
-        completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
+    func refreshToken<T: Decodable>(
+        url: URL,
+        decodingType: T.Type,
+        completionHandler: @escaping (Decodable?, NetworkError?) -> Void
     ) {
-        let endPoint = LoginEndPoint.refreshToken(received: withToken)
+
         let dataLoader = DataLoader()
         
         Task {
-            let result = try await dataLoader.fetchToken(endPoint, decode: { json -> TokenResponse? in
-                guard let feedResult = json as? TokenResponse else { return  nil }
-                return feedResult
-            })
-            
-            switch result {
-                case .success(let token):
-                    completionHandler(token, nil)
+            do {
+                let result = try await dataLoader.fetchWithContinuation(url, decode: { json -> T? in
+                    guard let feedResult = json as? T else { return  nil }
+                    return feedResult
+                })
                 
-                case .failure(let error):
-                    print("retrieveToken error \(error)")
-                    completionHandler(nil, error)
+                completionHandler(result, nil)
+                
+            } catch  {
+                completionHandler(nil, error as? NetworkError)
             }
         }
     }

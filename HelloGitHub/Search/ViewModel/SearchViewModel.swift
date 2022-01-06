@@ -72,7 +72,7 @@ extension SearchViewModel {
             dataLoader.decoder.dateDecodingStrategy = .iso8601
             currentPage = currentPage + 1
             if #available(iOS 15.0.0, *) {
-                await searchRepositoriesWithTokenInvaild(page: currentPage)
+                await searchRepositories(page: currentPage)
             } else {
                 // Fallback on earlier versions
             }
@@ -172,9 +172,9 @@ extension SearchViewModel {
                     }
             
                 case .failure(let error):
-                    
+                    print("searchRepositories \(error)")
                     downloadAndShowTask = nil
-                    await doWhenInvalidToken(endPoint: EndPoint.search(matching: searchText, numberOfPage: page), error: error, page: page)
+//                    await doWhenInvalidToken(endPoint: EndPoint.search(matching: searchText, numberOfPage: page), error: error, page: page)
                 
             }
             
@@ -234,7 +234,8 @@ extension SearchViewModel {
                 
                 case .failure(let error):
                     downloadAndShowTask = nil
-                    await doWhenInvalidToken(endPoint: EndPoint.searchIssues(matching: searchText, numberOfPage: page), error: error, page: page)
+                    print("searchIssues \(error)")
+                    //await doWhenInvalidToken(endPoint: EndPoint.searchIssues(matching: searchText, numberOfPage: page), error: error, page: page)
             }
             
         } catch  {
@@ -291,7 +292,8 @@ extension SearchViewModel {
                 
                 case .failure(let error):
                     downloadAndShowTask = nil
-                    await doWhenInvalidToken(endPoint: EndPoint.searchUsers(matching: searchText, numberOfPage: page), error: error, page: page)
+                    print("fetchUser \(error)")
+                    //await doWhenInvalidToken(endPoint: EndPoint.searchUsers(matching: searchText, numberOfPage: page), error: error, page: page)
                     
             }
             
@@ -501,7 +503,8 @@ extension SearchViewModel {
                         return
                     }
                     
-                    let result = try await dataLoader.loadAuthorizedWithDecodable(url, allowRetry: false, decode: { json -> Repositories? in
+                    async let _ = try await dataLoader.authManager.refreshToken()
+                    async let result = try await dataLoader.fetchWithContinuation(url, decode: { json -> Repositories? in
                         guard let feedResult = json as? Repositories else { return  nil }
                         return feedResult
                     })
@@ -512,12 +515,12 @@ extension SearchViewModel {
                             return
                         }
                         
-                        self.repo = result
+                        self.repo = try await result
                         downloadAndShowTask = nil
                     } else {
-                        handleSearchRepositoriesNextPage(newRepo: result)
+                        handleSearchRepositoriesNextPage(newRepo: try await result)
                     }
-                   
+                    
                 } catch  {
                     print("doWhenInvalidToken error \(error)")
                 }

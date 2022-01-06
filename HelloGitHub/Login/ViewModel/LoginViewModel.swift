@@ -24,9 +24,10 @@ protocol OAuthClient {
         completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
     )
     
-    func refreshToken(
-        withToken: String,
-        completionHandler: @escaping (TokenResponse?, NetworkError?) -> Void
+    func refreshToken<T: Decodable>(
+        url: URL,
+        decodingType: T.Type,
+        completionHandler: @escaping (Decodable?, NetworkError?) -> Void
     )
 }
 

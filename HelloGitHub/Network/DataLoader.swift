@@ -346,85 +346,105 @@ extension DataLoader {
         return response
     }
     
-    func loadAuthorizedWithDecodable<T: Decodable>(_ url: URL, allowRetry: Bool = true, decode: @escaping (Decodable) -> T?) async throws -> T {
-        let request = try await authorizedRequest(from: url)
-        var returnData: T!
-        var returnError: NetworkError!
-        var getData: ((T) -> Void)?
-        var getError: ((NetworkError) -> Void)?
-        let semaphore = DispatchSemaphore(value: 0)
+    func loadAuthorizedWithContinuation<T: Decodable>(_ url: URL, decode: @escaping (Decodable) -> T?, then handler: @escaping (Result<T?, NetworkError>) -> Void) {
         
-        let task = urlSession.dataTask(with: request) { data, response, error in
-            
-            guard error == nil else {
-                if let error = error {
-                    print("error \(error)")
-                    return
-                }
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("error \(NetworkError.noHTTPResponse)")
-                return
-            }
-            
-            if self.successCodes.contains(httpResponse.statusCode) {
+        Task {
+            let request = try await authorizedRequest(from: url)
+
+            let task = urlSession.dataTask(with: request) { data, response, error in
                 
-                guard let data = data else {
-                    print("error \(NetworkError.badData)")
-                    return
-                }
-                
-                do {
-                    let decodable = try self.decoder.decode(T.self, from: data)
-                    getData?(decodable)
-                    
-                } catch {
-                    print("error \(NetworkError.network(error))")
-                }
-                
-                
-            } else if httpResponse.statusCode == 304 {
-                print("error \(NetworkError.notModified)")
-                getError?(NetworkError.notModified)
-            } else if httpResponse.statusCode == 401 {
-  
-                Task {
-                    do {
-                        let _ = try await self.authManager.refreshToken()
-                    } catch  {
-                        
+                guard error == nil else {
+                    if let error = error {
+                        print("error \(error)")
+                        return
                     }
+                    return
                 }
                 
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    print("error \(NetworkError.noHTTPResponse)")
+                    return
+                }
                 
-                getError?(NetworkError.invalidToken)
-                
-            } else {
-                let error = self.handleHTTPResponse(statusCode: httpResponse.statusCode)
-                print("error \(error)")
-                getError?(error)
+                if self.successCodes.contains(httpResponse.statusCode) {
+                    
+                    guard let data = data else {
+                        print("error \(NetworkError.badData)")
+                        return
+                    }
+                    
+                    if T.self == TokenResponse.self, let responseString = String(data: data, encoding: .utf8) {
+                        let components = responseString.components(separatedBy: "&")
+                        var dictionary: [String: String] = [:]
+                        for component in components {
+                            let itemComponents = component.components(separatedBy: "=")
+                            if let key = itemComponents.first, let value = itemComponents.last {
+                              dictionary[key] = value
+                            }
+                        }
+                        
+                        let expires_in = Double(dictionary["expires_in"] ?? "0")
+                        let refresh_token_expires_in = Double(dictionary["refresh_token_expires_in"] ?? "0")
+                        
+                        let token = TokenResponse(access_token: dictionary["access_token"], expires_in: expires_in, refresh_token: dictionary["refresh_token"], refresh_token_expires_in: refresh_token_expires_in, scope: dictionary["scope"], token_type: dictionary["token_type"], isValid: true)
+                        
+                        DataLoader.token = token
+                        
+                        handler(.success(token as? T))
+                        return
+                        
+                    } else {
+                        do {
+                            let decodable = try self.decoder.decode(T.self, from: data)
+                            handler(.success(decodable))
+                            
+                        } catch {
+                            print("error \(NetworkError.network(error))")
+                        }
+                    }
+                  
+                } else if httpResponse.statusCode == 304 {
+                    print("error \(NetworkError.notModified)")
+                    handler(.failure(NetworkError.notModified))
+                } else if httpResponse.statusCode == 401 {
+                    
+                    guard let url = request.url else {
+                        return
+                    }
+                    
+                    Task {
+                        async let _ = try await self.authManager.refreshToken()
+                        async let _ = self.oauthClient.refreshToken(url: url, decodingType: T.self) { result, error in
+                            handler(.success(result as? T))
+                        }
+                    }
+                    
+                } else {
+                    handler(.failure(self.handleHTTPResponse(statusCode: httpResponse.statusCode)))
+                }
             }
+            task.resume()
         }
-        task.resume()
+    }
+    
+    func fetchWithContinuation<T: Decodable>(_ url: URL, decode: @escaping (Decodable) -> T?) async throws -> T {
         
-        getData = { decodable in
-            returnData = decodable
-            semaphore.signal()
-        }
-        
-        getError = { error in
-            returnError = error
-        }
-        
-        if let returnError = returnError {
-            throw returnError
-        }
-        
-        let _ = semaphore.wait(timeout: DispatchTime.distantFuture)
-        
-        return returnData
+        return try await withCheckedThrowingContinuation({ continuation in
+            loadAuthorizedWithContinuation(url, decode: decode) { result in
+                switch result {
+                    case .success(let data):
+                    
+                        guard let data = data else {
+                            continuation.resume(throwing: NetworkError.badData)
+                            return
+                        }
+                    
+                        continuation.resume(returning: data)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                }
+            }
+        })
     }
     
     @available(iOS 13.0.0, *)
@@ -493,7 +513,16 @@ extension DataLoader {
                 completion(nil, NetworkError.notModified)
             } else if httpResponse.statusCode == 401 {
   
-                completion(nil, NetworkError.invalidToken)
+                guard let url = request.url else {
+                    return
+                }
+                
+                Task {
+                    async let _ = try await self.authManager.refreshToken()
+                    async let _ = self.oauthClient.refreshToken(url: url, decodingType: decodingType) { result, error in
+                        completion(result, nil)
+                    }
+                }
                 
             } else {
                 completion(nil, self.handleHTTPResponse(statusCode: httpResponse.statusCode))
@@ -593,16 +622,16 @@ extension DataLoader {
     
     func checkToken() {
         
-        if let expires = DataLoader.expires, let token = DataLoader.accessToken  {
-        
-            let date = Date.init(timeIntervalSince1970: expires)
-            
-            if isSameDay(date1: date, date2: Date()) {
-                oauthClient.refreshToken(withToken: token) { token, error in
-                    DataLoader.accessToken = token?.access_token
-                }
-            }
-        }
+//        if let expires = DataLoader.expires, let token = DataLoader.accessToken  {
+//
+//            let date = Date.init(timeIntervalSince1970: expires)
+//
+//            if isSameDay(date1: date, date2: Date()) {
+//                oauthClient.refreshToken(withToken: token) { token, error in
+//                    DataLoader.accessToken = token?.access_token
+//                }
+//            }
+//        }
     }
     
     func isSameDay(date1: Date, date2: Date) -> Bool {
