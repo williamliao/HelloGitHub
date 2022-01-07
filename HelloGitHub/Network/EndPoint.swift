@@ -148,6 +148,15 @@ extension EndPoint {
             ]
         )
     }
+    
+    static func fetchOrganizations(name: String) -> EndPoint {
+        return EndPoint(
+            path: "/users/\(name)/orgs",
+            queryItems: [
+                URLQueryItem(name: "per_page", value: "1"),
+            ]
+        )
+    }
 }
 
 extension EndPoint {

@@ -164,7 +164,7 @@
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5bdf"
+                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5b38"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -174,12 +174,12 @@
                   urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Network/DataLoader.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "172"
-                  endingLineNumber = "172"
-                  offsetFromSymbolStart = "732">
+                  startingLineNumber = "171"
+                  endingLineNumber = "171"
+                  offsetFromSymbolStart = "2156">
                </Location>
                <Location
-                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5bdf"
+                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5b38"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -189,9 +189,9 @@
                   urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Network/DataLoader.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "172"
-                  endingLineNumber = "172"
-                  offsetFromSymbolStart = "820">
+                  startingLineNumber = "171"
+                  endingLineNumber = "171"
+                  offsetFromSymbolStart = "2312">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -254,8 +254,8 @@
             filePath = "HelloGitHub/Profile/ViewModel/SettingViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "52"
-            endingLineNumber = "52"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
             landmarkName = "fetchUser()"
             landmarkType = "7">
          </BreakpointContent>
@@ -270,8 +270,8 @@
             filePath = "HelloGitHub/Profile/ViewModel/SettingViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
             landmarkName = "fetchUser()"
             landmarkType = "7">
          </BreakpointContent>
@@ -286,8 +286,8 @@
             filePath = "HelloGitHub/Profile/ViewModel/SettingViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "44"
-            endingLineNumber = "44"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
             landmarkName = "fetchUser()"
             landmarkType = "7">
          </BreakpointContent>

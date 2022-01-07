@@ -256,6 +256,10 @@ extension SettingView {
 
         settingRepoTexts.append(contentsOf: [SettingItem(title: "Repositories", subTitle:"\(self.viewModel.user.public_repos)" , image: nil, userInfo: nil),
                                              SettingItem(title: "Starred", subTitle:"\(self.viewModel.userTotalStarred)" , image: nil, userInfo: nil)])
+        
+        if self.viewModel.userTotalOrgs > 0 {
+            settingRepoTexts.append(SettingItem(title: "Organizations", subTitle: "\(self.viewModel.userTotalOrgs)", image: nil, userInfo: nil))
+        }
     }
 }
 

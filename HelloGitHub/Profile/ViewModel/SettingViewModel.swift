@@ -16,6 +16,7 @@ class SettingViewModel {
     var stars: [StarsResponse]!
     var avatarImage: UIImage?
     var userTotalStarred = 0
+    var userTotalOrgs = 0
     
     var reloadData: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
@@ -32,6 +33,7 @@ extension SettingViewModel {
         async let _ = await fetchUser()
         async let _ = await fetchUserImage()
         async let _ = await fetchUserStars()
+        async let _ = await fetchOrganizations()
         reloadData?()
     }
     
@@ -104,7 +106,12 @@ extension SettingViewModel {
         do {
             
             dataLoader.showHeader = { [self] header in
-                parseUserServerResponeHeader(header)
+                
+                let str = parseResponeHeader(header)
+                
+                if let totalStarred = str {
+                    self.userTotalStarred = Int(totalStarred) ?? 0
+                }
             }
             
             let result = try await dataLoader.fetch(EndPoint.fetchStarred(name: self.user.login), decode: {json -> [StarsResponse]? in
@@ -123,6 +130,28 @@ extension SettingViewModel {
                     print(error)
                     showError?(error)
             }
+            
+        }  catch  {
+            print("fetchUserStars error \(error)")
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
+        }
+    }
+    
+    func fetchOrganizations() async {
+        do {
+            dataLoader.showHeader = { [self] header in
+                let str = parseResponeHeader(header)
+                
+                if let totalOrgs = str {
+                    self.userTotalOrgs = Int(totalOrgs) ?? 0
+                }
+            }
+            
+            let _ = try await dataLoader.fetch(EndPoint.fetchOrganizations(name: self.user.login), decode: {json -> [OrganizationsResponse]? in
+                
+                guard let feedResult = json as? [OrganizationsResponse] else { return  nil }
+                return feedResult
+            })
             
         }  catch  {
             print("fetchUserStars error \(error)")
@@ -219,7 +248,7 @@ extension SettingViewModel {
         return image
     }
     
-    func parseUserServerResponeHeader(_ header: [String: String]) {
+    func parseResponeHeader(_ header: [String: String]) -> String? {
         if let linkHeader = header["Link"] {
             let links = linkHeader.components(separatedBy: ",")
 
@@ -231,10 +260,16 @@ extension SettingViewModel {
             })
             
             if let lastPagePath = dictionary["rel=\"last\""] {
-                if let totalStarred = lastPagePath.components(separatedBy: "&page=").last {
-                    self.userTotalStarred = Int(totalStarred) ?? 0
+                if let str = lastPagePath.components(separatedBy: "&page=").last {
+                    return str
+                } else {
+                    return nil
                 }
+            } else {
+                return nil
             }
+        } else {
+            return nil
         }
     }
 }
