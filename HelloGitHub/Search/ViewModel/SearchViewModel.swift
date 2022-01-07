@@ -249,14 +249,13 @@ extension SearchViewModel {
         
         self.usersInfo = [UsersInfo]()
         var urls = [URL]()
-        
+
         do {
             urls = try user.items.compactMap { item in
-                
                 guard let path = item.url else {
                     throw NetworkError.invalidURL
                 }
-                
+
                 return URL(string: path)
             }
             
@@ -279,7 +278,6 @@ extension SearchViewModel {
                     
                     var childTaskResults = [UsersInfo]()
                     for try await result in group {
-                        //self.usersInfo.append(result)
                         childTaskResults.append(result)
                     }
                     
