@@ -421,12 +421,17 @@ extension DataLoader {
                 } else if httpResponse.statusCode == 401 {
                     
                     guard let url = request.url else {
+                        handler(.failure(NetworkError.invalidURL))
                         return
                     }
                     
                     Task {
                         async let _ = try await self.authManager.refreshToken()
                         async let _ = self.oauthClient.refreshToken(session: self.urlSession, url: url, decodingType: T.self) { result, error in
+                            if let error = error {
+                                handler(.failure(error))
+                                return
+                            }
                             handler(.success(result as? T))
                         }
                     }
@@ -528,12 +533,17 @@ extension DataLoader {
             } else if httpResponse.statusCode == 401 {
   
                 guard let url = request.url else {
+                    completion(nil, NetworkError.invalidURL)
                     return
                 }
                 
                 Task {
                     async let _ = try await self.authManager.refreshToken()
                     async let _ = self.oauthClient.refreshToken(session: self.urlSession ,url: url, decodingType: decodingType) { result, error in
+                        if let error = error {
+                            completion(nil, error)
+                            return
+                        }
                         completion(result, nil)
                     }
                 }
