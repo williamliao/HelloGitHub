@@ -28,9 +28,6 @@ class SearchViewController: UIViewController {
         let session = URLSession(configuration: sessionConfiguration)
         
         viewModel = SearchViewModel(dataLoader: DataLoader(session: session))
-        viewModel.showError = { [weak self] error in
-            self?.showErrorToast(error: error)
-        }
         renderView()
     }
     

@@ -100,6 +100,7 @@ extension SearchView {
             DispatchQueue.main.async {
                 self?.isLoading(isLoading: false)
                 self?.isSpinnerLoading(isLoading: false)
+                self?.showErrorToast(error: error)
             }
         }
     }
@@ -352,5 +353,9 @@ extension SearchView {
             spinner.stopAnimating()
         }
         spinner.isHidden = !isLoading
+    }
+    
+    func showErrorToast(error: NetworkError) {
+        print("showErrorToast \(error)")
     }
 }

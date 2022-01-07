@@ -119,7 +119,7 @@ extension EndPoint {
     static func searchUsers(matching query: String,
                        sortedBy sorting: SearchUsersSort = .followers,
                        orderBy ordering: SearchOrder = .desc,
-                       numberOf perPage: Int = 30,
+                       numberOf perPage: Int = 10,
                        numberOfPage page: Int = 1) -> EndPoint {
         return EndPoint(
             path: "/search/users",

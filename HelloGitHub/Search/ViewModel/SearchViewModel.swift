@@ -250,22 +250,48 @@ extension SearchViewModel {
         self.usersInfo = [UsersInfo]()
         var urls = [URL]()
         
-        urls = user.items.compactMap { item in
-            let path = item.url!
-            return URL(string: path)
+        do {
+            urls = try user.items.compactMap { item in
+                
+                guard let path = item.url else {
+                    throw NetworkError.invalidURL
+                }
+                
+                return URL(string: path)
+            }
+            
+        } catch  {
+            print("fetchUserInfo map url Error \(error)")
         }
             
         if #available(iOS 15.0, *) {
             
             do {
-                
-                for try await info in RemoteDataAsyncSequence(urls: urls, urlSession: URLSession.shared) {
-                    self.usersInfo.append(info)
+
+                let allResults = try await withThrowingTaskGroup(of: UsersInfo.self, returning: [UsersInfo].self) { group in
+                    
+                    for url in urls {
+                        group.addTask {
+                            let metadata = try await self.dataLoader.fetchUserInfo(url)
+                            return metadata
+                        }
+                    }
+                    
+                    var childTaskResults = [UsersInfo]()
+                    for try await result in group {
+                        //self.usersInfo.append(result)
+                        childTaskResults.append(result)
+                    }
+                    
+                    return childTaskResults
                 }
+                
+                self.usersInfo.append(contentsOf: allResults)
+                isFetching = false
+                downloadAndShowTask = nil
                 
             } catch {
                 isFetching = false
-                print("fetchUserInfo \(error)")
                 downloadAndShowTask = nil
                 
                 let networkError = error as? NetworkError ?? NetworkError.unKnown
@@ -281,38 +307,31 @@ extension SearchViewModel {
         } else {
             
             do {
-                
-                try await withThrowingTaskGroup(of: (UsersInfo).self) { group -> Void in
+                let allResults = try await withThrowingTaskGroup(of: UsersInfo.self, returning: [UsersInfo].self) { group in
                     
-                    for index in 0...self.users.items.count - 1 {
-                        
-                        guard let url = self.users.items[index].url, let metadataUrl = URL(string: url) else {
-                            continue
-                        }
-                        
+                    for url in urls {
                         group.addTask {
-                            if #available(iOS 15.0, *) {
-                                let metadata = try await self.dataLoader.fetchUserInfo(metadataUrl)
-                                return metadata
-                            } else {
-                                // Fallback on earlier versions
-                                let metadata = try await self.dataLoader.fetch(metadataUrl, decode: { json -> UsersInfo? in
-                                    guard let feedResult = json as? UsersInfo else { return  nil }
-                                    return feedResult
-                                })
-                                return try metadata.get()
-                            }
-                            
-                        }
-                        
-                        for try await result in group {
-                            self.usersInfo.append(result)
+                            let metadata = try await self.dataLoader.fetch(url, decode: { json -> UsersInfo? in
+                                guard let feedResult = json as? UsersInfo else { return nil }
+                                return feedResult
+                            })
+                            return try metadata.get()
                         }
                     }
                     
-                    isFetching = false
-                    downloadAndShowTask = nil
+                    var childTaskResults = [UsersInfo]()
+                    for try await result in group {
+                        //self.usersInfo.append(result)
+                        childTaskResults.append(result)
+                    }
+                    
+                    return childTaskResults
                 }
+                
+                self.usersInfo.append(contentsOf: allResults)
+                isFetching = false
+                downloadAndShowTask = nil
+                
             } catch  {
                 isFetching = false
                 downloadAndShowTask = nil
