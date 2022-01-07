@@ -34,6 +34,16 @@ extension SettingViewModel {
         async let _ = await fetchUserImage()
         async let _ = await fetchUserStars()
         async let _ = await fetchOrganizations()
+        
+        var doNotReload = false
+        showError = { error in
+            doNotReload = true
+        }
+        
+        if doNotReload {
+            return
+        }
+
         reloadData?()
     }
     
