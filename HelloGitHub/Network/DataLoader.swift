@@ -649,33 +649,18 @@ extension DataLoader {
         }
         return urlRequest
     }
-    
-    func checkToken() {
-        
-//        if let expires = DataLoader.expires, let token = DataLoader.accessToken  {
-//
-//            let date = Date.init(timeIntervalSince1970: expires)
-//
-//            if isSameDay(date1: date, date2: Date()) {
-//                oauthClient.refreshToken(withToken: token) { token, error in
-//                    DataLoader.accessToken = token?.access_token
-//                }
-//            }
-//        }
-    }
-    
-    func isSameDay(date1: Date, date2: Date) -> Bool {
-        let diff = Calendar.current.dateComponents([.day], from: date1, to: date2)
-        if diff.day == 0 {
-            return true
-        } else {
-            return false
-        }
-    }
 
     func serverResponeHeader(httpResponse: HTTPURLResponse) {
         if let header = httpResponse.allHeaderFields as? [String: String] {
             showHeader?(header)
+        }
+    }
+    
+    func serverResponeHeaderWithKey(httpResponse: HTTPURLResponse, targetKey: String) -> String? {
+        if let targetStr = httpResponse.value(forHTTPHeaderField: targetKey) {
+            return targetStr
+        } else {
+            return nil
         }
     }
 }
