@@ -95,6 +95,13 @@ extension SearchView {
                 self?.applyInitialSnapshots()
             }
         }
+        
+        viewModel.showError = { [weak self] error in
+            DispatchQueue.main.async {
+                self?.isLoading(isLoading: false)
+                self?.isSpinnerLoading(isLoading: false)
+            }
+        }
     }
     
     func makeDateSourceForCollectionView() {

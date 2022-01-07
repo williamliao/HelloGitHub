@@ -173,9 +173,7 @@ extension SearchViewModel {
             
                 case .failure(let error):
                     print("searchRepositories \(error)")
-                    downloadAndShowTask = nil
-//                    await doWhenInvalidToken(endPoint: EndPoint.search(matching: searchText, numberOfPage: page), error: error, page: page)
-                
+                    showError?(error)
             }
             
         }  catch  {
@@ -233,9 +231,8 @@ extension SearchViewModel {
                     }
                 
                 case .failure(let error):
-                    downloadAndShowTask = nil
                     print("searchIssues \(error)")
-                    //await doWhenInvalidToken(endPoint: EndPoint.searchIssues(matching: searchText, numberOfPage: page), error: error, page: page)
+                    showError?(error)
             }
             
         } catch  {
@@ -291,9 +288,8 @@ extension SearchViewModel {
                 }
                 
                 case .failure(let error):
-                    downloadAndShowTask = nil
+                    showError?(error)
                     print("fetchUser \(error)")
-                    //await doWhenInvalidToken(endPoint: EndPoint.searchUsers(matching: searchText, numberOfPage: page), error: error, page: page)
                     
             }
             
