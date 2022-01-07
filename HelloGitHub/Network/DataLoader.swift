@@ -533,23 +533,6 @@ extension DataLoader {
                 
                 Task {
                     async let _ = try await self.authManager.refreshToken()
-                    
-                   /* let result = try await self.fetch(url, decode: { json -> T? in
-                        guard let feedResult = json as? T else { return  nil }
-                        return feedResult
-                    })
-                    
-                    switch result {
-                        case .success(let data):
-                        
-                            completion(data, nil)
-                        
-                            break
-                        case .failure(let error):
-                            completion(nil, error)
-                            break
-                    } */
-                    
                     async let _ = self.oauthClient.refreshToken(session: self.urlSession ,url: url, decodingType: decodingType) { result, error in
                         completion(result, nil)
                     }
