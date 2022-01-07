@@ -18,8 +18,7 @@ class SearchUsersCell: UITableViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.borderWidth = 1
         imageView.layer.masksToBounds = false
-        imageView.layer.borderColor = UIColor.black.cgColor
-        imageView.layer.cornerRadius = imageView.frame.height/2
+        imageView.layer.borderColor = UIColor.clear.cgColor
         imageView.clipsToBounds = true
         imageView.image = UIImage(systemName: "person.crop.circle")
         return imageView
@@ -75,6 +74,11 @@ class SearchUsersCell: UITableViewCell {
         nameLabel.text = ""
         descriptionLabel.text = ""
         avatarImage.image = UIImage(systemName: "person.crop.circle")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        avatarImage.layer.cornerRadius = avatarImage.frame.height/2
     }
 }
 
