@@ -192,7 +192,7 @@ extension SearchViewModel {
             //print("Will fetchUserInfo metadata")
             async let _ = await fetchUserInfo()
             //print("Has fetchUserInfo metadata")
-            
+            isFetching = false
             downloadAndShowTask = nil
         }
     }
@@ -262,9 +262,6 @@ extension SearchViewModel {
                 for try await info in RemoteDataAsyncSequence(urls: urls, urlSession: URLSession.shared) {
                     self.usersInfo.append(info)
                 }
-                
-                isFetching = false
-                
                 
             } catch {
                 isFetching = false
