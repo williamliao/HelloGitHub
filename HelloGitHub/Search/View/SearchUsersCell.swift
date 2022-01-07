@@ -37,7 +37,7 @@ class SearchUsersCell: UITableViewCell {
     
     let nameLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .label
+        label.textColor = .systemGray
         label.font = UIFont.systemFont(ofSize: 16)
         label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingTail
@@ -106,7 +106,7 @@ extension SearchUsersCell {
             
             nameLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),
             nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 10),
+            nameLabel.topAnchor.constraint(equalTo: userNameLabel.bottomAnchor, constant: 5),
             nameLabel.heightAnchor.constraint(equalToConstant: 16),
             
             descriptionLabel.leadingAnchor.constraint(equalTo: avatarImage.trailingAnchor, constant: 5),

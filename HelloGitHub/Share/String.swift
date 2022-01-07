@@ -14,19 +14,15 @@ extension UILabel {
     func fitTextToBounds() {
         guard let text = text, let currentFont = font else { return }
         
-    
         let bestFittingFont = UIFont.bestFittingFont(for: text, in: bounds, fontDescriptor: currentFont.fontDescriptor, additionalAttributes: basicStringAttributes)
         font = bestFittingFont
     }
     
-    func calculateLabelFrame() -> CGSize {
-        guard let text = text, let currentFont = font else { return CGSize(width: 16, height: 16) }
+    func calculateLabelFrame(font: UIFont) -> CGSize {
+        guard let text = text else { return CGSize(width: 16, height: 16) }
         
         let paragraphStyle = NSMutableParagraphStyle()
-        let bestFittingFont = UIFont.bestFittingFont(for: text, in: bounds, fontDescriptor: currentFont.fontDescriptor, additionalAttributes: basicStringAttributes)
-        font = bestFittingFont
-      
-        let estimatedFrame = text.boundingRect(with: CGSize(width: UIScreen.main.bounds.size.width - 40, height: Double.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: bestFittingFont, NSAttributedString.Key.paragraphStyle: paragraphStyle], context: nil)
+        let estimatedFrame = text.boundingRect(with: CGSize(width: UIScreen.main.bounds.size.width - 40, height: Double.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [NSAttributedString.Key.font: font, NSAttributedString.Key.paragraphStyle: paragraphStyle], context: nil)
         
         return CGSize(width: ceil(estimatedFrame.size.width), height: ceil(estimatedFrame.size.height))
     }

@@ -158,7 +158,7 @@ extension SearchRepositoriesCell {
         let configuration = UIImage.SymbolConfiguration(font: font)
         likeIcon.image = UIImage(systemName: "star", withConfiguration: configuration)
 
-        let labelSize = likeLabel.calculateLabelFrame()
+        let labelSize = likeLabel.calculateLabelFrame(font: likeLabel.font)
         likeLabelWidthLayoutConstraint.constant = labelSize.width
     }
     
