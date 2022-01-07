@@ -139,6 +139,15 @@ extension EndPoint {
             queryItems: [URLQueryItem]()
         )
     }
+    
+    static func fetchStarred(name: String) -> EndPoint {
+        return EndPoint(
+            path: "/users/\(name)/starred",
+            queryItems: [
+                URLQueryItem(name: "per_page", value: "1"),
+            ]
+        )
+    }
 }
 
 extension EndPoint {
@@ -153,8 +162,8 @@ extension EndPoint {
 }
 
 struct LoginEndPoint {
-    static let client_id = ""
-    static let client_secret = ""
+    static let client_id = "Iv1.6e411d9570d13fa3"
+    static let client_secret = "f11de92814894e871402db35e7347c69a4bb7cd4"
     let path: String
     let queryItems: [URLQueryItem]
 }

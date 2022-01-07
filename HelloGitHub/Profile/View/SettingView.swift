@@ -254,7 +254,8 @@ extension SettingView {
 
         settingProfileTexts.append(SettingItem(title: name, subTitle: bio, image: image, userInfo: UserInfo(followers: "\(self.viewModel.user.followers) followers", following: "\(self.viewModel.user.following) following")))
 
-        settingRepoTexts.append(SettingItem(title: "Repositories", subTitle:"\(self.viewModel.user.public_repos)" , image: nil, userInfo: nil))
+        settingRepoTexts.append(contentsOf: [SettingItem(title: "Repositories", subTitle:"\(self.viewModel.user.public_repos)" , image: nil, userInfo: nil),
+                                             SettingItem(title: "Starred", subTitle:"\(self.viewModel.userTotalStarred)" , image: nil, userInfo: nil)])
     }
 }
 

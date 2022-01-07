@@ -63,6 +63,8 @@ class DataLoader {
         headers[key] = value
         return headers
     }
+    
+    var showHeader: ((_ header: [String: String]) -> Void)?
 
     init(session: URLSession = .shared, decoder: JSONDecoder = .init()
          , oauthClient: OAuthClient = RemoteOAuthClient()
@@ -483,6 +485,8 @@ extension DataLoader {
                 return
             }
             
+            self.serverResponeHeader(httpResponse: httpResponse)
+            
             if self.successCodes.contains(httpResponse.statusCode) {
                 
                 guard let data = data else {
@@ -673,6 +677,12 @@ extension DataLoader {
             return true
         } else {
             return false
+        }
+    }
+
+    func serverResponeHeader(httpResponse: HTTPURLResponse) {
+        if let header = httpResponse.allHeaderFields as? [String: String] {
+            showHeader?(header)
         }
     }
 }

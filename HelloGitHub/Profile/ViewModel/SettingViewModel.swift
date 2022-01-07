@@ -13,7 +13,9 @@ class SettingViewModel {
     private(set) var isFetching = false
     
     var user: UserAccount!
+    var stars: [StarsResponse]!
     var avatarImage: UIImage?
+    var userTotalStarred = 0
     
     var reloadData: (() -> Void)?
     var showError: ((_ error:NetworkError) -> Void)?
@@ -29,6 +31,7 @@ extension SettingViewModel {
     func fetchUserInfo() async {
         async let _ = await fetchUser()
         async let _ = await fetchUserImage()
+        async let _ = await fetchUserStars()
         reloadData?()
     }
     
@@ -94,6 +97,36 @@ extension SettingViewModel {
                 
                 self.downloaded(from: url)
             }
+        }
+    }
+    
+    func fetchUserStars() async {
+        do {
+            
+            dataLoader.showHeader = { [self] header in
+                parseUserServerResponeHeader(header)
+            }
+            
+            let result = try await dataLoader.fetch(EndPoint.fetchStarred(name: self.user.login), decode: {json -> [StarsResponse]? in
+                
+                guard let feedResult = json as? [StarsResponse] else { return  nil }
+                return feedResult
+            })
+            
+            isFetching = false
+            switch result {
+                case .success(let stars):
+                
+                    self.stars = stars
+
+                case .failure(let error):
+                    print(error)
+                    showError?(error)
+            }
+            
+        }  catch  {
+            print("fetchUserStars error \(error)")
+            showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
     }
 }
@@ -184,5 +217,24 @@ extension SettingViewModel {
         }
         
         return image
+    }
+    
+    func parseUserServerResponeHeader(_ header: [String: String]) {
+        if let linkHeader = header["Link"] {
+            let links = linkHeader.components(separatedBy: ",")
+
+            var dictionary: [String: String] = [:]
+            links.forEach({
+                let components = $0.components(separatedBy:"; ")
+                let cleanPath = components[0].trimmingCharacters(in: CharacterSet(charactersIn: "<>"))
+                dictionary[components[1]] = cleanPath
+            })
+            
+            if let lastPagePath = dictionary["rel=\"last\""] {
+                if let totalStarred = lastPagePath.components(separatedBy: "&page=").last {
+                    self.userTotalStarred = Int(totalStarred) ?? 0
+                }
+            }
+        }
     }
 }
