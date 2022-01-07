@@ -86,7 +86,12 @@ extension DataLoader {
             return try await withCheckedThrowingContinuation({
                 (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
                 loadRequest(endpoint, decode: decode) { result in
-                    continuation.resume(returning: result)
+                    switch result {
+                        case .success(let data):
+                            continuation.resume(returning: .success(data))
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                    }
                 }
             })
         } catch NetworkError.unAuthorized  {
@@ -108,7 +113,12 @@ extension DataLoader {
             return try await withCheckedThrowingContinuation({
                 (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
                 loadRequest(endpoint, decode: decode) { result in
-                    continuation.resume(returning: result)
+                    switch result {
+                        case .success(let data):
+                            continuation.resume(returning: .success(data))
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                    }
                 }
             })
         } catch NetworkError.unAuthorized  {
@@ -130,7 +140,12 @@ extension DataLoader {
             return try await withCheckedThrowingContinuation({
                 (continuation: CheckedContinuation<(Result<T, NetworkError>), Error>) in
                 loadAuthorized(endpoint, decode: decode) { result in
-                    continuation.resume(returning: result)
+                    switch result {
+                        case .success(let data):
+                            continuation.resume(returning: .success(data))
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                    }
                 }
             })
         } catch NetworkError.unAuthorized  {

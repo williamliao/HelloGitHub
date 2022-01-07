@@ -110,8 +110,8 @@
             filePath = "HelloGitHub/Network/DataLoader.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "307"
-            endingLineNumber = "307"
+            startingLineNumber = "322"
+            endingLineNumber = "322"
             landmarkName = "loadAuthorized(_:decode:handler:)"
             landmarkType = "7">
          </BreakpointContent>
