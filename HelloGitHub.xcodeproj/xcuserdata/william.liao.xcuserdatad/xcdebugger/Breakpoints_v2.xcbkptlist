@@ -119,22 +119,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "8F014D88-B9DD-44D8-AF10-57DB9957216C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
-            landmarkName = "refreshToken(withRefreshToken:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "13E09A3C-145F-46F3-976F-249AA8773AC7"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -145,86 +129,6 @@
             startingLineNumber = "71"
             endingLineNumber = "71"
             landmarkName = "authorize(in:completionHandler:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
-            landmarkName = "refreshToken(withRefreshToken:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5b38"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "HelloGitHub.DataLoader.refreshToken(withRefreshToken: Swift.String) async throws -&gt; HelloGitHub.TokenResponse"
-                  moduleName = "HelloGitHub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Network/DataLoader.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "171"
-                  endingLineNumber = "171"
-                  offsetFromSymbolStart = "2156">
-               </Location>
-               <Location
-                  uuid = "69BEBA57-C9D5-4D27-9F95-7347C1103252 - d9538eb0bf2f5b38"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "HelloGitHub.DataLoader.refreshToken(withRefreshToken: Swift.String) async throws -&gt; HelloGitHub.TokenResponse"
-                  moduleName = "HelloGitHub"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/william.liao/Documents/iOS_Practice/HelloGitHub/HelloGitHub/Network/DataLoader.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "171"
-                  endingLineNumber = "171"
-                  offsetFromSymbolStart = "2312">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E41278C9-1F81-49B6-B6D5-E80411A607A8"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "122"
-            endingLineNumber = "122"
-            landmarkName = "fetch(_:decode:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3DA7F1BF-8549-4B25-8DEA-7AA6EBCC6E74"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
-            landmarkName = "fetch(_:decode:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -321,22 +225,6 @@
             startingLineNumber = "46"
             endingLineNumber = "46"
             landmarkName = "refreshToken()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FBE9F017-2929-4F38-A5D1-6BD38CB2AAA3"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "HelloGitHub/Network/DataLoader.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "495"
-            endingLineNumber = "495"
-            landmarkName = "decodingTaskWithConcurrency(with:decodingType:completionHandler:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

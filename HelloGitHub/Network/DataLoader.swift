@@ -168,7 +168,7 @@ extension DataLoader {
         let request = authorizedURLRequest(with: endPoint)
         
         guard let request = request else {
-            throw NetworkError.invalidToken
+            throw NetworkError.invalidURLRequest
         }
         
         let task = urlSession.dataTask(with: request) { data, response, error in
