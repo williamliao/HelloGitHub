@@ -146,11 +146,7 @@ extension SearchView {
     func applyInitialSnapshots() {
         
         DispatchQueue.main.async { [self] in
-            
-//            guard let searchType = viewModel.searchType else {
-//                return
-//            }
-            
+ 
             switch viewModel.searchType {
                 case .repositories:
                     configureRepo()
@@ -163,9 +159,7 @@ extension SearchView {
     }
     
     func configureRepo() {
-        
-        tableView.dataSource = searchDataSource
-        
+       
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
  
         //Append available sections
@@ -182,8 +176,6 @@ extension SearchView {
     
     func configureIssues() {
         
-        tableView.dataSource = searchIssuesDataSource
-        
         var snapshot = NSDiffableDataSourceSnapshot<Section, IssuesItems>()
  
         //Append available sections
@@ -199,8 +191,6 @@ extension SearchView {
     }
     
     func configureUser() {
-        
-        tableView.dataSource = searchUsersDataSource
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, UsersInfo>()
  
@@ -308,7 +298,17 @@ extension SearchView: UISearchBarDelegate {
         
         closeSearchView()
         
+        switch category {
+            case .repositories:
+                tableView.dataSource = searchDataSource
+            case .issues, .PRs:
+                tableView.dataSource = searchIssuesDataSource
+            case .people, .organizations:
+                tableView.dataSource = searchUsersDataSource
+        }
+        
         isLoading(isLoading: true)
+        viewModel.reset()
         viewModel.searchType = category
         viewModel.querySearch(query: strippedString)
     }
