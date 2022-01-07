@@ -79,92 +79,26 @@ extension SearchViewModel {
         }
     }
     
-    @available(iOS 15.0.0, *)
-    func searchRepositoriesWithTokenInvaild(page: Int) async  {
-        
-        dataLoader.decoder.dateDecodingStrategy = .iso8601
-        
-        do {
-            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText, numberOfPage: page), decode: { json -> Repositories? in
-                guard let feedResult = json as? Repositories else { return  nil }
-                return feedResult
-            })
-            
-            isFetching = false
-            switch result {
-                case .success(let repo):
-                
-                    if page == 1 {
-                        if repo.incomplete_results {
-                            showError?(NetworkError.queryTimeLimit)
-                            return
-                        }
-                        
-                        self.repo = repo
-                        downloadAndShowTask = nil
-                    } else {
-                        handleSearchRepositoriesNextPage(newRepo: repo)
-                    }
-            
-                case .failure(let error):
-                    downloadAndShowTask = nil
-                
-                    switch error {
-                        case .invalidToken:
-                            do {
-                                let url = EndPoint.search(matching: searchText, numberOfPage: page)
-                                let result = try await dataLoader.loadAuthorized(url.url!, allowRetry: false, decode: { json -> Repositories? in
-                                    guard let feedResult = json as? Repositories else { return  nil }
-                                    return feedResult
-                                })
-                                
-                                if page == 1 {
-                                    if repo.incomplete_results {
-                                        showError?(NetworkError.queryTimeLimit)
-                                        return
-                                    }
-                                    
-                                    self.repo = result
-                                    downloadAndShowTask = nil
-                                } else {
-                                    handleSearchRepositoriesNextPage(newRepo: result)
-                                }
-                               
-                            } catch  {
-                                
-                            }
-                                            
-                        default:
-                            showError?(error)
-                    }
-            }
-            
-        }  catch  {
-            print("searchRepositories error \(error)")
-            showError?(error as? NetworkError ?? NetworkError.unKnown)
-        }
-    }
-    
     func searchRepositories(page: Int) async {
 
         dataLoader.decoder.dateDecodingStrategy = .iso8601
         
         do {
-            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText, numberOfPage: page), decode: { json -> Repositories? in
+            let result = try await dataLoader.fetch(EndPoint.search(matching: searchText, numberOfPage: page), decode: { [self] json -> Repositories? in
+                isFetching = false
                 guard let feedResult = json as? Repositories else { return  nil }
                 return feedResult
             })
             
-            isFetching = false
             switch result {
                 case .success(let repo):
                 
+                    if repo.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
+                
                     if page == 1 {
-                        if repo.incomplete_results {
-                            showError?(NetworkError.queryTimeLimit)
-                            return
-                        }
-                        
                         self.repo = repo
                         downloadAndShowTask = nil
                     } else {
@@ -177,6 +111,7 @@ extension SearchViewModel {
             }
             
         }  catch  {
+            isFetching = false
             print("searchRepositories error \(error)")
             showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
@@ -209,21 +144,21 @@ extension SearchViewModel {
         }
         
         do {
-            let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText, numberOfPage: page), decode: { json -> Issues? in
+            let result = try await dataLoader.fetch(EndPoint.searchIssues(matching: searchText, numberOfPage: page), decode: { [self] json -> Issues? in
+                isFetching = false
                 guard let feedResult = json as? Issues else { return  nil }
                 return feedResult
             })
             
-            isFetching = false
             switch result {
                 case .success(let issues):
                 
+                    if issues.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
+                
                     if page == 1 {
-                        if issues.incomplete_results {
-                            showError?(NetworkError.queryTimeLimit)
-                            return
-                        }
-                        
                         self.issues = issues
                         downloadAndShowTask = nil
                     } else {
@@ -236,6 +171,7 @@ extension SearchViewModel {
             }
             
         } catch  {
+            isFetching = false
             print("searchIssues error \(error)")
             showError?(error as? NetworkError ?? NetworkError.unKnown)
         }
@@ -280,12 +216,17 @@ extension SearchViewModel {
             switch result {
                 case .success(let user):
                 
-                if page == 1 {
-                    self.users = user
-                    downloadAndShowTask = nil
-                } else {
-                    handleSearchUsersNextPage(newUsers: user)
-                }
+                    if user.incomplete_results {
+                        showError?(NetworkError.queryTimeLimit)
+                        return
+                    }
+                    
+                    if page == 1 {
+                        self.users = user
+                        downloadAndShowTask = nil
+                    } else {
+                        handleSearchUsersNextPage(newUsers: user)
+                    }
                 
                 case .failure(let error):
                     showError?(error)
@@ -294,6 +235,7 @@ extension SearchViewModel {
             }
             
         } catch  {
+            isFetching = false
             showError?(error as? NetworkError ?? NetworkError.unKnown)
             downloadAndShowTask = nil
         }
@@ -324,7 +266,8 @@ extension SearchViewModel {
                 isFetching = false
                 
                 
-            } catch  {
+            } catch {
+                isFetching = false
                 print("fetchUserInfo \(error)")
                 downloadAndShowTask = nil
                 
@@ -374,6 +317,7 @@ extension SearchViewModel {
                     downloadAndShowTask = nil
                 }
             } catch  {
+                isFetching = false
                 downloadAndShowTask = nil
                 let networkError = error as? NetworkError ?? NetworkError.unKnown
                 
