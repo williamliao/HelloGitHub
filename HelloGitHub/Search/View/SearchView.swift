@@ -276,7 +276,7 @@ extension SearchView: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
         
-        self.cellHeightsDictionary = [IndexPath: CGFloat]()
+        cellHeightsDictionary = [IndexPath: CGFloat]()
 
         guard let scopeButtonTitles = searchBar.scopeButtonTitles else {
             return
@@ -300,26 +300,28 @@ extension SearchView: UISearchBarDelegate {
         
         switch category {
             case .repositories:
+                viewModel.repo = nil
                 tableView.dataSource = searchDataSource
             case .issues, .PRs:
+                viewModel.issues = nil
                 tableView.dataSource = searchIssuesDataSource
             case .people, .organizations:
+                viewModel.users = nil
                 tableView.dataSource = searchUsersDataSource
         }
         
+        applyInitialSnapshots()
+        
         isLoading(isLoading: true)
-        viewModel.reset()
         viewModel.searchType = category
         viewModel.querySearch(query: strippedString)
     }
     
     func closeSearchView() {
-        viewModel.repo = nil
         isLoading(isLoading: false)
         isSpinnerLoading(isLoading: false)
         viewModel.reset()
-        self.applyInitialSnapshots()
-        self.endEditing(true)
+        endEditing(true)
     }
 }
 
