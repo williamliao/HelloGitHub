@@ -33,6 +33,7 @@ extension SettingViewModel {
         
         if let _ = DataLoader.giveATry {
             reloadData?()
+            return
         }
         
         async let _ = await fetchUser()
