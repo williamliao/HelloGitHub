@@ -14,14 +14,29 @@ class LoginView: UIView {
         button.setTitle("Login", for: .normal)
         button.setTitleColor(.label, for: .normal)
         button.backgroundColor = .lightGray
-        button.layer.cornerRadius = button.frame.height/2
         button.addTarget(self, action: #selector(onTapLogin), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
+    private lazy var tryButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle("Try", for: .normal)
+        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = .lightGray
+        button.addTarget(self, action: #selector(onTapTry), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    override func layoutSubviews() {
+        tryButton.layer.cornerRadius = tryButton.frame.height/2
+        loginButton.layer.cornerRadius = loginButton.frame.height/2
+    }
+    
     func configureView() {
         self.addSubview(loginButton)
+        self.addSubview(tryButton)
     }
     
     func configureConstraints() {
@@ -30,6 +45,11 @@ class LoginView: UIView {
             loginButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
             loginButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -22),
             loginButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            tryButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
+            tryButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
+            tryButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -84),
+            tryButton.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
     
@@ -43,6 +63,20 @@ class LoginView: UIView {
  
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func onTapTry() {
+        let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let tab = mainStoryboard.instantiateViewController(withIdentifier: "TabBarCtrl") as? UITabBarController
+        guard let tab = tab, let window = self.getCurrentWindow() else {
+            return
+        }
+        
+        DataLoader.giveATry = "YES"
+        
+        window.rootViewController = tab
+        window.makeKeyAndVisible()
+        self.setRootViewController(window: window, options: [.transitionFlipFromLeft])
     }
     
     @objc private func onTapLogin() {

@@ -30,6 +30,11 @@ class SettingViewModel {
 extension SettingViewModel {
     
     func fetchUserInfo() async {
+        
+        if let _ = DataLoader.giveATry {
+            reloadData?()
+        }
+        
         async let _ = await fetchUser()
         async let _ = await fetchUserImage()
         async let _ = await fetchUserStars()

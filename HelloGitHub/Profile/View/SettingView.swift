@@ -39,7 +39,7 @@ class SettingView: UIView {
                              SettingItem(title: "隱私權條款", subTitle: "", image: nil, userInfo: nil)]
     
     var settingRepoTexts = [SettingItem]()
-    let settingSystemTexts = [SettingItem(title: "公告", subTitle: "", image: nil, userInfo: nil),                                             SettingItem(title: "登出", subTitle: "", image: nil, userInfo: nil)]
+    var settingSystemTexts = [SettingItem(title: "公告", subTitle: "", image: nil, userInfo: nil),                                             SettingItem(title: "登出", subTitle: "", image: nil, userInfo: nil)]
     
     
     var dataSource: UICollectionViewDiffableDataSource<SectionLayoutKind, SettingItem>! = nil
@@ -205,8 +205,13 @@ extension SettingView {
     func applyInitialSnapshots() {
         
         DispatchQueue.main.async { [weak self] in
-            self?.updateModelDataBeforeLoad()
-            self?.updateSnapShot()
+            if let _ = DataLoader.giveATry {
+                self?.settingSystemTexts.removeLast()
+                self?.updateSnapShot()
+            } else {
+                self?.updateModelDataBeforeLoad()
+                self?.updateSnapShot()
+            }
         }
     }
     

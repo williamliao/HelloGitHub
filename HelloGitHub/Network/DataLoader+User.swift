@@ -15,6 +15,7 @@ extension DataLoader {
     private static let expiresKey = "expires"
     private static let refreshExpiresKey = "refreshExpires"
     private static let tokenKey = "token"
+    private static let tryKey = "try"
 
     // MARK: Properties
     static var accessToken: String? {
@@ -74,4 +75,15 @@ extension DataLoader {
             }
         }
     }
+    
+    static var giveATry: String? {
+        get {
+          UserDefaults.standard.string(forKey: tryKey)
+        }
+        set {
+          UserDefaults.standard.setValue(newValue, forKey: tryKey)
+        }
+    }
+    
+    
 }
