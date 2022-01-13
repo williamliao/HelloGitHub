@@ -94,6 +94,11 @@ class LoginView: UIView {
             DataLoader.expires = token.expires_in
             DataLoader.refreshExpires = token.refresh_token_expires_in
             
+            if UserDefaults.standard.object(forKey: "try") != nil {
+                UserDefaults.standard.removeObject(forKey: "try")
+                UserDefaults.standard.synchronize()
+            }
+            
             DispatchQueue.main.async {
                 
                 window.rootViewController = tab

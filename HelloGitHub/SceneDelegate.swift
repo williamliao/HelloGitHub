@@ -16,9 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
-        
-        //DataLoader.accessToken = "ghu_lpmy6qwtvat0Ch5B8MghFuAi7sR8u93laike"
-        
+    
         if let _ = DataLoader.accessToken {
             //User Is Login
             let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
@@ -28,9 +26,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 return
             }
             
+            if UserDefaults.standard.object(forKey: "try") != nil {
+                removeTryKey()
+            }
+            
             self.window?.rootViewController = tab
             self.window?.makeKeyAndVisible()
             
+        } else {
+            removeTryKey()
         }
     }
 
@@ -60,6 +64,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+    }
+    
+    func removeTryKey() {
+        UserDefaults.standard.removeObject(forKey: "try")
+        UserDefaults.standard.synchronize()
     }
 }
 
